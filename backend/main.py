@@ -20,7 +20,8 @@ async def lifespan(app: FastAPI):
     await close_redis()
 
 
-app = FastAPI(title="LautPintar API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="LautPintar API", version="1.0.0", lifespan=lifespan,
+              default_response_class=JSONResponse)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -31,13 +32,23 @@ if settings.APP_ENV == "development":
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:3000", "http://localhost:5173"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_credentials=True, allow_methods=["*"], allow_headers=["*"],
     )
 
 from backend.auth.router import router as auth_router
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
+
+from backend.prediction.router import router as prediction_router
+app.include_router(prediction_router, prefix="/api/v1/prediction", tags=["prediction"])
+
+from backend.user.router import router as user_router
+app.include_router(user_router, prefix="/api/v1/user", tags=["user"])
+
+from backend.feedback.router import router as feedback_router
+app.include_router(feedback_router, prefix="/api/v1/feedback", tags=["feedback"])
+
+from backend.harbor.router import router as harbor_router
+app.include_router(harbor_router, prefix="/api/v1/harbor", tags=["harbor"])
 
 
 @app.get("/health")
