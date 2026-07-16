@@ -20,6 +20,21 @@ class PredictionCell:
     is_fishing_ban: bool
 
 
+def is_fishing_ban_active(lat, lng, check_date):
+    import json
+    from pathlib import Path
+    try:
+        bans = json.loads(Path("backend/data/fishing_seasons.json").read_text(encoding="utf-8"))
+    except:
+        return False
+    month = check_date.month
+    for ban in bans.get("bans", []):
+        if month in ban.get("months", []):
+            if ban["lat_min"] <= lat <= ban["lat_max"] and ban["lon_min"] <= lng <= ban["lon_max"]:
+                return True
+    return False
+
+
 def calculate_fps(sst_celsius, chlorophyll, current_u, current_v, wind_speed_ms, wave_height_m, depth_m, is_upwelling, is_thermal_front, is_fishing_ban, species):
     cfg = SPECIES_CONFIG[species]
     reasons = []
@@ -99,3 +114,38 @@ def calculate_fps(sst_celsius, chlorophyll, current_u, current_v, wind_speed_ms,
         category = "AVOID"
 
     return fps, category, ". ".join(reasons)
+
+
+def run_prediction_grid(sst_grid, chl_grid, current_u_grid, current_v_grid, wind_data, depth_grid, upwelling_mask, thermal_front_mask, species, prediction_date):
+    from .engine import is_fishing_ban_active
+    results = []
+    all_coords = set(sst_grid.keys()) | set(chl_grid.keys())
+    for coord in all_coords:
+        lat, lng = coord
+        try:
+            sst_k = sst_grid.get(coord)
+            sst_c = sst_k if sst_k is not None else None
+            ban_active = is_fishing_ban_active(lat, lng, prediction_date)
+            fps, category, reasoning = calculate_fps(
+                sst_celsius=sst_c,
+                chlorophyll=chl_grid.get(coord),
+                current_u=current_u_grid.get(coord),
+                current_v=current_v_grid.get(coord),
+                wind_speed_ms=wind_data.get(coord, {}).get("wind_speed_ms"),
+                wave_height_m=wind_data.get(coord, {}).get("wave_height_m"),
+                depth_m=depth_grid.get(coord),
+                is_upwelling=coord in upwelling_mask,
+                is_thermal_front=coord in thermal_front_mask,
+                is_fishing_ban=ban_active,
+                species=species,
+            )
+            results.append(PredictionCell(
+                lat=lat, lng=lng, fps=fps, category=category, reasoning=reasoning,
+                sst_celsius=sst_c, chlorophyll=chl_grid.get(coord),
+                current_speed=(math.sqrt(current_u_grid.get(coord, 0)**2 + current_v_grid.get(coord, 0)**2) if current_u_grid.get(coord) is not None else None),
+                depth_m=depth_grid.get(coord), is_upwelling_zone=coord in upwelling_mask,
+                is_thermal_front=coord in thermal_front_mask, is_fishing_ban=ban_active,
+            ))
+        except Exception as e:
+            continue
+    return results
