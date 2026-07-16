@@ -1,0 +1,18 @@
+# Environment
+backend/.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Data files (binary besar, generated)
+backend/data/gebco_indonesia.nc
+backend/data/climatology/
+backend/data/historical_chl/
+*.nc
+
+# Dependencies
+node_modules/
+package-lock.json
