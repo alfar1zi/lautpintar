@@ -70,10 +70,6 @@
         <input type="text" id="reg-name" placeholder="Nama Lengkap" required>
         <input type="email" id="reg-email" placeholder="Email" required>
         <input type="password" id="reg-password" placeholder="Kata Sandi (min 8)" autocomplete="new-password" required>
-        <select id="reg-species">
-          <option value="tongkol">Tongkol</option><option value="cakalang">Cakalang</option><option value="tuna_sirip_kuning">Tuna Sirip Kuning</option>
-          <option value="kembung">Kembung</option><option value="teri">Teri</option><option value="layang">Layang</option><option value="lemuru">Lemuru</option>
-        </select>
         <div id="register-error" class="form-error hidden"></div>
         <button type="submit" class="form-submit">Daftar</button>
       </form>
@@ -143,6 +139,7 @@
     <button id="btn-pt-detail" class="db-btn2">Lihat Detail</button>
     <button id="btn-pt-navigate" class="db-btn1" style="width:100%;">Navigasi ke Sini</button>
   </div>
+  <nav class="db-navbar"><button class="db-nav active" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png"><span>Peta</span></button><button class="db-nav" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png"><span>Riwayat</span></button><button class="db-nav" data-goto="screen-akun"><img src="/static/icons/ui/akun.png"><span>Akun</span></button></nav>
 </div>
 
 <!-- PETA DETAIL -->

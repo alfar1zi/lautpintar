@@ -31,13 +31,15 @@
     UI.show('screen-gps');
   });
 
+  let gpsResolved=!!UI.currentCoords;
+
   // === GPS ===
   document.getElementById('btn-gps-allow').addEventListener('click',()=>{
     if(!navigator.geolocation){UI.show('screen-login');return;}
     navigator.geolocation.getCurrentPosition(
-      p=>{UI.currentCoords={lat:p.coords.latitude,lng:p.coords.longitude};UI.show('screen-login');},
+      p=>{UI.currentCoords={lat:p.coords.latitude,lng:p.coords.longitude};gpsResolved=true;UI.show('screen-login');},
       ()=>{UI.show('screen-login');},
-      {enableHighAccuracy:true,timeout:15000,maximumAge:60000}
+      {enableHighAccuracy:true,timeout:15000,maximumAge:120000}
     );
   });
   document.getElementById('btn-gps-skip').addEventListener('click',()=>UI.show('screen-login'));
@@ -96,17 +98,16 @@
     const name=document.getElementById('reg-name').value.trim();
     const email=document.getElementById('reg-email').value.trim();
     const password=document.getElementById('reg-password').value;
-    const species=document.getElementById('reg-species').value;
     const err=document.getElementById('register-error');
     err.classList.add('hidden');
     if(!name||!email||!password){err.textContent='Semua field wajib diisi.';err.classList.remove('hidden');return;}
     if(password.length<8){err.textContent='Kata sandi minimal 8 karakter.';err.classList.remove('hidden');return;}
     try{
-      const user=await API.auth.register({email,password,full_name:name,default_species:species});
+      const user=await API.auth.register({email,password,full_name:name,default_species:'tongkol'});
       UI.currentUser=user;
       localStorage.setItem('lp_user_id',user.id);
       UI.setGreeting(user.full_name);
-      UI.currentSpecies=species||'tongkol';
+      UI.currentSpecies='tongkol';
       document.getElementById('login-form-overlay').classList.remove('open');
       document.getElementById('login-form-overlay').classList.add('hidden');
       UI.show('screen-beranda');
@@ -115,7 +116,7 @@
     }catch(ex){err.textContent=ex.message||'Pendaftaran gagal.';err.classList.remove('hidden');}
   });
 
-  // === NAVIGATION ===
+  // === NAVIGATION - bottom nav stays on peta too
   document.querySelectorAll('.db-nav').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const target=btn.dataset.goto;
@@ -130,6 +131,11 @@
         UI.show('screen-peta');
         UI.updateNav('screen-peta');
         initPetaMap();
+        return;
+      }
+      if(target==='screen-beranda'){
+        UI.show('screen-beranda');
+        UI.updateNav('screen-beranda');
         return;
       }
       UI.show(target);
@@ -159,12 +165,21 @@
     UI.updateNav('screen-akun');
   });
   document.getElementById('btn-db-aktifkan-gps')?.addEventListener('click',()=>{
+    if(gpsResolved&&UI.currentCoords){UI.loadZone(UI.currentSpecies);return;}
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(
-        p=>{UI.currentCoords={lat:p.coords.latitude,lng:p.coords.longitude};UI.loadZone(UI.currentSpecies);},
+        p=>{UI.currentCoords={lat:p.coords.latitude,lng:p.coords.longitude};gpsResolved=true;UI.loadZone(UI.currentSpecies);},
         ()=>{alert('Izin lokasi ditolak.');}
       );
     }
+  });
+  document.getElementById('btn-db-notif')?.addEventListener('click',()=>{
+    alert('Tidak ada notifikasi baru.');
+  });
+  document.getElementById('btn-db-akun')?.addEventListener('click',()=>{
+    document.getElementById('ak-nama').textContent=UI.currentUser?.full_name||'Nelayan';
+    UI.show('screen-akun');
+    UI.updateNav('screen-akun');
   });
 
   // === PETA ===
@@ -178,17 +193,23 @@
     UI.updateNav('screen-akun');
   });
   document.getElementById('btn-pt-gps')?.addEventListener('click',()=>{
+    if(gpsResolved&&UI.currentCoords){
+      if(initPetaMap.blueDot)initPetaMap.blueDot.setLatLng([UI.currentCoords.lat,UI.currentCoords.lng]);
+      else initPetaMap.blueDot=L.circleMarker([UI.currentCoords.lat,UI.currentCoords.lng],{radius:8,color:'#1976D2',fillColor:'#1976D2',fillOpacity:0.8}).addTo(petaMap);
+      petaMap.flyTo([UI.currentCoords.lat,UI.currentCoords.lng],8,{duration:1});
+      return;
+    }
     if(!navigator.geolocation){alert('GPS tidak tersedia');return;}
     navigator.geolocation.getCurrentPosition(
       p=>{
         const lat=p.coords.latitude,lng=p.coords.longitude;
-        UI.currentCoords={lat,lng};
+        UI.currentCoords={lat,lng};gpsResolved=true;
         if(initPetaMap.blueDot)initPetaMap.blueDot.setLatLng([lat,lng]);
         else initPetaMap.blueDot=L.circleMarker([lat,lng],{radius:8,color:'#1976D2',fillColor:'#1976D2',fillOpacity:0.8}).addTo(petaMap);
         petaMap.flyTo([lat,lng],8,{duration:1});
       },
       ()=>{alert('Izin lokasi ditolak.');},
-      {enableHighAccuracy:true,timeout:10000}
+      {enableHighAccuracy:true,timeout:10000,maximumAge:120000}
     );
   });
   document.getElementById('btn-pt-navigate')?.addEventListener('click',()=>{
