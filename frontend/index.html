@@ -9,21 +9,120 @@
   <title>LautPintar</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="/static/css/variables.css">
+  <link rel="stylesheet" href="/static/css/reset.css">
   <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
-  <div id="screen-loading" class="screen screen-active">
-    <h1>LautPintar</h1>
-    <p>Memuat...</p>
+
+<div id="screen-loading" class="screen screen-active">
+  <div class="splash-bg">
+    <div class="splash-content">
+      <h1 class="splash-title">LautPintar</h1>
+    </div>
   </div>
-  <nav id="bottom-nav">
-    <button>Beranda</button>
-    <button>Peta</button>
-    <button>Riwayat</button>
-    <button>Akun</button>
-  </nav>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="/static/js/api.js"></script>
-  <script src="/static/js/main.js"></script>
+</div>
+
+<div id="screen-onboarding" class="screen">
+  <div id="onboarding-slide-1" class="onboarding-slide">
+    <div class="onboarding-white-bg">
+      <div class="onboarding-body">
+        <h1 class="onboarding-title">Temukan lokasi ikan terbaik dengan data satelit</h1>
+        <p class="onboarding-desc">LautPintar pakai AI buat kasih zona tangkap terdekat dan kondisi cuaca.</p>
+      </div>
+      <div class="onboarding-action">
+        <button id="btn-onboarding-lanjut" class="onboarding-btn-white">Lanjut</button>
+        <p class="onboarding-skip"><a href="#" id="link-skip-gps">Lewati</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="onboarding-slide-2" class="onboarding-slide hidden">
+    <div class="onboarding-bg">
+      <div class="onboarding-body">
+        <h1 class="onboarding-title" style="font-size:20px;">Selamat Datang di LautPintar</h1>
+      </div>
+      <div class="onboarding-action" style="padding-top:0">
+        <form id="form-login" class="auth-form">
+          <div class="form-group"><input type="email" id="input-email" placeholder="Email" required></div>
+          <div class="form-group"><input type="password" id="input-password" placeholder="Kata Sandi" required minlength="8"></div>
+          <div id="login-error" class="form-error hidden"></div>
+          <button id="btn-login" class="auth-btn" type="submit">Masuk</button>
+          <p class="auth-footer">Belum punya akun? <a href="#" id="link-to-register">Daftar</a></p>
+        </form>
+        <form id="form-register" class="auth-form hidden">
+          <div class="form-group"><input type="text" id="reg-name" placeholder="Nama Lengkap" required></div>
+          <div class="form-group"><input type="email" id="reg-email" placeholder="Email" required></div>
+          <div class="form-group"><input type="password" id="reg-password" placeholder="Kata Sandi" required minlength="8"></div>
+          <div class="form-group">
+            <select id="reg-species">
+              <option value="tongkol">Tongkol</option>
+              <option value="cakalang">Cakalang</option>
+              <option value="tuna_sirip_kuning">Tuna Sirip Kuning</option>
+              <option value="kembung">Kembung</option>
+              <option value="teri">Teri</option>
+              <option value="layang">Layang</option>
+              <option value="lemuru">Lemuru</option>
+            </select>
+          </div>
+          <div id="register-error" class="form-error hidden"></div>
+          <button id="btn-register" class="auth-btn" type="submit">Daftar</button>
+          <p class="auth-footer">Sudah punya akun? <a href="#" id="link-to-login">Masuk</a></p>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-app" class="screen screen-beranda">
+  <header class="bd-header">
+    <h1 class="bd-greeting">Hai, Nelayan!</h1>
+  </header>
+  <div class="bd-scroll">
+    <div id="bd-nodata">
+      <div class="bd-nodata-card">
+        <h3>Belum Ada Lokasi</h3>
+        <p>Pilih pelabuhan atau aktifkan GPS.</p>
+        <button id="btn-bd-pilih-pelabuhan" class="bd-btn-outline">Pilih Pelabuhan</button>
+        <button id="btn-bd-aktifkan-gps" class="bd-btn-primary">Aktifkan GPS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="screen-peta" class="screen">
+  <div class="peta-map" id="map-peta"></div>
+  <button id="btn-peta-gps" class="peta-gps-btn">GPS</button>
+  <div id="peta-sheet" class="bottom-sheet">
+    <div id="peta-sheet-nodata" class="sheet-state">
+      <p>Prediksi Belum Tersedia</p>
+    </div>
+  </div>
+</div>
+
+<div id="screen-riwayat" class="screen">
+  <div class="riwayat-header"><h2>Riwayat Lokasi</h2></div>
+  <div id="riwayat-empty" class="riwayat-empty">
+    <p>Belum Ada Trip Tercatat</p>
+  </div>
+</div>
+
+<div id="screen-settings" class="screen">
+  <div class="settings-header">
+    <button id="btn-back-settings" class="btn-back">Kembali</button>
+    <h2>Akun Saya</h2>
+  </div>
+</div>
+
+<nav id="bottom-nav" class="bottom-nav">
+  <button class="bottom-nav-item active" data-screen="screen-app">Beranda</button>
+  <button class="bottom-nav-item" data-screen="screen-peta">Peta</button>
+  <button class="bottom-nav-item" data-screen="screen-riwayat">Riwayat</button>
+  <button class="bottom-nav-item" data-screen="screen-settings">Akun</button>
+</nav>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/main.js"></script>
 </body>
 </html>
