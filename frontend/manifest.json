@@ -1,0 +1,16 @@
+{
+  "name": "LautPintar",
+  "short_name": "LautPintar",
+  "description": "Prediksi zona tangkap ikan untuk nelayan Indonesia",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F7F3EB",
+  "theme_color": "#F7F3EB",
+  "icons": [
+    { "src": "/static/icons/logo-default.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/static/icons/logo-default.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "categories": ["navigation", "utilities"],
+  "lang": "id"
+}
