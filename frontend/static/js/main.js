@@ -263,6 +263,10 @@
   // === AKUN ===
   document.getElementById('btn-ak-cuaca').addEventListener('click',()=>alert('Cuaca & Kondisi - data dari Open-Meteo'));
   document.getElementById('btn-ak-bantuan')?.addEventListener('click',()=>alert('FAQ: LautPintar menggunakan data satelit NASA, CMEMS, dan GEBCO untuk prediksi zona tangkap.'));
+  document.getElementById('btn-ak-profil')?.addEventListener('click',()=>alert('Pengaturan profil'));
+  document.getElementById('btn-ak-notifikasi')?.addEventListener('click',()=>alert('Pengaturan notifikasi'));
+  document.getElementById('btn-ak-bahasa')?.addEventListener('click',()=>alert('Bahasa: Bahasa Indonesia'));
+  document.getElementById('btn-ak-tentang')?.addEventListener('click',()=>alert('LautPintar v3.5.0 - Prediksi zona tangkap ikan'));
   document.getElementById('btn-ak-logout').addEventListener('click',async()=>{
     try{await API.auth.logout();}catch(e){}
     localStorage.removeItem('lp_user_id');
@@ -299,6 +303,7 @@
     const lat=rec.zone_lat||rec.lat,lng=rec.zone_lng||rec.lng;
     document.getElementById('nv-jarak').textContent=`${Math.round(rec.distance_km||0)} km`;
     document.getElementById('nv-waktu').textContent=`${Math.max(1,Math.round((rec.distance_km||0)/15))} menit`;
+    document.getElementById('nv-depart-name').textContent=UI.currentHarbor?.name||'Lokasi Saya';
     UI.show('screen-navigasi');
     setTimeout(()=>{
       const container=document.getElementById('nv-map');
