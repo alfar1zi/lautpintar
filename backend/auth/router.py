@@ -10,6 +10,8 @@ from backend.auth.service import (
 )
 from backend.db.database import get_db
 from backend.db.models import RefreshToken, User
+from backend.middleware.rate_limiter import limiter
+from backend.config import settings
 
 router = APIRouter(prefix="")
 
@@ -32,7 +34,8 @@ async def _issue_tokens(session: AsyncSession, user: User, response: Response) -
 
 
 @router.post("/register", response_model=UserResponse)
-async def register(body: RegisterRequest, response: Response, session: AsyncSession = Depends(get_db)):
+@limiter.limit(f"{settings.RATE_LIMIT_AUTH_PER_MINUTE}/minute")
+async def register(body: RegisterRequest, request: Request, response: Response, session: AsyncSession = Depends(get_db)):
     existing = await session.execute(select(User).where(User.email == body.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
@@ -47,7 +50,8 @@ async def register(body: RegisterRequest, response: Response, session: AsyncSess
 
 
 @router.post("/login", response_model=UserResponse)
-async def login(body: LoginRequest, response: Response, session: AsyncSession = Depends(get_db)):
+@limiter.limit(f"{settings.RATE_LIMIT_AUTH_PER_MINUTE}/minute")
+async def login(body: LoginRequest, request: Request, response: Response, session: AsyncSession = Depends(get_db)):
     result = await session.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
     if not user or not verify_password(body.password, user.password_hash):
@@ -57,6 +61,7 @@ async def login(body: LoginRequest, response: Response, session: AsyncSession = 
 
 
 @router.post("/logout", response_model=TokenResponse)
+@limiter.limit(f"{settings.RATE_LIMIT_AUTH_PER_MINUTE}/minute")
 async def logout(request: Request, response: Response, session: AsyncSession = Depends(get_db)):
     raw_refresh = request.cookies.get(REFRESH_COOKIE)
     if raw_refresh:
@@ -71,6 +76,7 @@ async def logout(request: Request, response: Response, session: AsyncSession = D
 
 
 @router.post("/refresh", response_model=TokenResponse)
+@limiter.limit(f"{settings.RATE_LIMIT_AUTH_PER_MINUTE}/minute")
 async def refresh(request: Request, response: Response, session: AsyncSession = Depends(get_db)):
     raw_refresh = request.cookies.get(REFRESH_COOKIE)
     if not raw_refresh:

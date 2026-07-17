@@ -60,6 +60,9 @@ const UI={
     document.getElementById('db-wave').textContent=wave!=null?`${wave.toFixed(1)} m`:'-';
     document.getElementById('db-wind').textContent=wind!=null?`${Math.round(wind*3.6)} km/h`:'-';
     const badge=document.getElementById('db-badge'),status=document.getElementById('db-status'),text=document.getElementById('db-ktext');
+    if(wind!=null&&wind>15){
+      badge.style.background='#FFEBEE';badge.style.color='#C62828';status.textContent='BAHAYA';text.textContent='Angin kencang. Jangan berlayar.';return;
+    }
     if(w?.weather_available&&wave!=null){
       if(wave>2.5){badge.style.background='#FFEBEE';badge.style.color='#C62828';status.textContent='BAHAYA';text.textContent='Kondisi berbahaya. Jangan berlayar.';}
       else if(wave>1.5){badge.style.background='#FFF3E0';badge.style.color='#E65100';status.textContent='WASPADA';text.textContent='Kondisi perlu diwaspadai.';}
@@ -92,7 +95,11 @@ const UI={
 
   showPetaDetail(zone,dist,bearing,dir){
     const cat=['TINGGI','SEDANG','RENDAH','BAHAYA'][['HIGH','MEDIUM','LOW','UNSAFE'].indexOf(zone.category)]||zone.category;
-    document.getElementById('pd-badge').textContent=cat;
+    const badgeEl=document.getElementById('pd-badge');
+    const cc={'TINGGI':{bg:'#E8F5E9',fg:'#2E7D32'},'SEDANG':{bg:'#FFF3E0',fg:'#E65100'},'RENDAH':{bg:'#FFF8E1',fg:'#F9A825'},'BAHAYA':{bg:'#FFEBEE',fg:'#C62828'}}[cat]||{bg:'#E8F5E9',fg:'#2E7D32'};
+    badgeEl.textContent=cat;
+    badgeEl.style.background=cc.bg;
+    badgeEl.style.color=cc.fg;
     document.getElementById('pd-coord-text').textContent=`${zone.zone_lat?.toFixed(4)||zone.lat?.toFixed(4)||'-'}, ${zone.zone_lng?.toFixed(4)||zone.lng?.toFixed(4)||'-'}`;
     const dur=Math.max(1,Math.round((dist||0)/15));
     document.getElementById('pd-time').textContent=`Sekitar ${dur} jam dari lokasi (${Math.round(dist||0)} km)`;
@@ -129,13 +136,13 @@ const UI={
       const d=await API.feedback.trips(100,0);
       list.innerHTML='';
       if(!d.trips||d.trips.length===0){
-        list.innerHTML='<span style="text-align:center;padding:20px;color:#717783;">Belum ada trip tercatat.</span>';
-        document.getElementById('rw-total-trip').textContent='0 Trip';
+        list.innerHTML='<span style="text-align:center;padding:20px;color:#717783;">Belum ada perjalanan tercatat.</span>';
+        document.getElementById('rw-total-trip').textContent='0 Perjalanan';
         document.getElementById('rw-total-catch').textContent='-';
         return;
       }
       const trips=d.trips;
-      document.getElementById('rw-total-trip').textContent=`${trips.length} Trip`;
+      document.getElementById('rw-total-trip').textContent=`${trips.length} Perjalanan`;
       const totalCatch=trips.reduce((s,r)=>s+(parseFloat(r.catch_kg)||0),0);
       document.getElementById('rw-total-catch').textContent=totalCatch>0?`${totalCatch>=1000?(totalCatch/1000).toFixed(1)+' Ton':Math.round(totalCatch)+' kg'}`:'-';
       const now=new Date();
@@ -148,7 +155,7 @@ const UI={
         return true;
       });
       if(filtered.length===0){
-        list.innerHTML='<span style="text-align:center;padding:20px;color:#717783;">Tidak ada trip di periode ini.</span>';return;
+        list.innerHTML='<span style="text-align:center;padding:20px;color:#717783;">Tidak ada perjalanan di periode ini.</span>';return;
       }
       filtered.forEach(r=>{
         const card=document.createElement('div');card.className='rw-card';

@@ -3,7 +3,7 @@ const API={BASE:'/api/v1',TIMEOUT:30000,
     const c=new AbortController();const t=setTimeout(()=>c.abort(),this.TIMEOUT);
     try{const r=await fetch(url,{...options,signal:c.signal});clearTimeout(t);return r}
     catch(e){clearTimeout(t);if(e.name==='AbortError')throw Object.assign(new Error('Koneksi terlalu lambat. Coba lagi.'),{status:0,code:'TIMEOUT'});
-    throw Object.assign(new Error('Tidak dapat terhubung ke server. Periksa koneksi internet Anda.'),{status:0,code:'NETWORK_ERROR'});}},
+    throw Object.assign(new Error('Tidak dapat terhubung ke server. Periksa koneksi internet.'),{status:0,code:'NETWORK_ERROR'});}},
   async post(path,body){const r=await this.fetchWithTimeout(`${this.BASE}${path}`,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});
     if(!r.ok){const e=await r.json().catch(()=>({detail:null}));throw Object.assign(new Error(e.detail||this.getErrorMessage(r.status)),{status:r.status})}return r.json();},
   async put(path,body){const r=await this.fetchWithTimeout(`${this.BASE}${path}`,{method:'PUT',headers:{'Content-Type':'application/json'},credentials:'include',body:JSON.stringify(body)});

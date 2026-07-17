@@ -90,7 +90,7 @@
       UI.show('screen-beranda');
       UI.updateNav('screen-beranda');
       if(UI.currentHarbor||UI.currentCoords)UI.loadZone(UI.currentSpecies);
-    }catch(ex){err.textContent=ex.message||'Login gagal.';err.classList.remove('hidden');}
+    }catch(ex){err.textContent=ex.message||'Masuk gagal.';err.classList.remove('hidden');}
   });
 
   document.getElementById('form-register').addEventListener('submit',async e=>{
@@ -100,7 +100,7 @@
     const password=document.getElementById('reg-password').value;
     const err=document.getElementById('register-error');
     err.classList.add('hidden');
-    if(!name||!email||!password){err.textContent='Semua field wajib diisi.';err.classList.remove('hidden');return;}
+    if(!name||!email||!password){err.textContent='Semua kolom wajib diisi.';err.classList.remove('hidden');return;}
     if(password.length<8){err.textContent='Kata sandi minimal 8 karakter.';err.classList.remove('hidden');return;}
     try{
       const user=await API.auth.register({email,password,full_name:name,default_species:'tongkol'});
@@ -113,7 +113,7 @@
       UI.show('screen-beranda');
       UI.updateNav('screen-beranda');
       if(UI.currentCoords)UI.loadZone(UI.currentSpecies);
-    }catch(ex){err.textContent=ex.message||'Pendaftaran gagal.';err.classList.remove('hidden');}
+    }catch(ex){err.textContent=ex.message||'Daftar gagal.';err.classList.remove('hidden');}
   });
 
   // === NAVIGATION - bottom nav stays on peta too
