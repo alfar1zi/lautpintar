@@ -20,7 +20,7 @@
       if(UI.currentHarbor)UI.loadZone(UI.currentSpecies);
     }catch(e){
       localStorage.removeItem('lp_user_id');
-      UI.show('screen-onboarding');
+      UI.show('screen-login');
     }
   }else{
     UI.show('screen-onboarding');
@@ -265,6 +265,8 @@
     try{await API.auth.logout();}catch(e){}
     localStorage.removeItem('lp_user_id');
     UI.currentUser=null;UI.currentHarbor=null;UI.currentCoords=null;
+    document.getElementById('form-login').classList.remove('hidden');
+    document.getElementById('form-register').classList.add('hidden');
     UI.show('screen-onboarding');
   });
 
@@ -285,6 +287,9 @@
     if(rec){
       L.marker([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng]).addTo(petaMap).bindPopup('Zona Rekomendasi');
       petaMap.flyTo([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng],8,{duration:1});
+      document.getElementById('pt-dist').textContent=Math.round(rec.distance_km||0);
+      document.getElementById('pt-time').textContent=Math.max(1,Math.round((rec.distance_km||0)/15));
+      document.getElementById('pt-coord').textContent=`${rec.zone_lat?.toFixed(3)||rec.lat?.toFixed(3)||'-'}, ${rec.zone_lng?.toFixed(3)||rec.lng?.toFixed(3)||'-'}`;
     }
   };
 
@@ -296,7 +301,7 @@
     setTimeout(()=>{
       const container=document.getElementById('nv-map');
       if(!container)return;
-      if(navMap){navMap.invalidateSize();return;}
+      if(navMap){navMap.remove();navMap=null;}
       navMap=L.map(container,{center:[lat,lng],zoom:9,zoomControl:false,attributionControl:false});
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:4,opacity:0.7}).addTo(navMap);
       L.marker([lat,lng]).addTo(navMap).bindPopup('Zona Rekomendasi');

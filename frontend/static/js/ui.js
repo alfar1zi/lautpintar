@@ -35,9 +35,9 @@ const UI={
     this.lastZoneData=data;const rec=data.top_recommendation;
     const nodata=document.getElementById('db-nodata');
     const sections=document.querySelectorAll('#db-kondisi,#db-rekom,#db-forecast,#db-nav-btn');
-    if(nodata)nodata.style.display='none';
     sections.forEach(s=>s.classList.remove('db-hide'));
-    if(!rec){sections.forEach(s=>s.classList.add('db-hide'));return;}
+    if(!rec){sections.forEach(s=>s.classList.add('db-hide'));if(nodata)nodata.style.display='';return;}
+    if(nodata)nodata.style.display='none';
     this.renderDashboard(rec,data);
     this.loadWeather();
   },
@@ -93,7 +93,7 @@ const UI={
   showPetaDetail(zone,dist,bearing,dir){
     const cat=['TINGGI','SEDANG','RENDAH','BAHAYA'][['HIGH','MEDIUM','LOW','UNSAFE'].indexOf(zone.category)]||zone.category;
     document.getElementById('pd-badge').textContent=cat;
-    document.getElementById('pd-coord-text').textContent=`${zone.lat?.toFixed(4)}, ${zone.lng?.toFixed(4)}`;
+    document.getElementById('pd-coord-text').textContent=`${zone.zone_lat?.toFixed(4)||zone.lat?.toFixed(4)||'-'}, ${zone.zone_lng?.toFixed(4)||zone.lng?.toFixed(4)||'-'}`;
     const dur=Math.max(1,Math.round((dist||0)/15));
     document.getElementById('pd-time').textContent=`Sekitar ${dur} jam dari lokasi (${Math.round(dist||0)} km)`;
     const sst=zone.sst_celsius!=null?`${zone.sst_celsius.toFixed(1)}°C`:'-';

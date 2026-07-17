@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
+from backend.auth.models import UserResponse
 from backend.auth.service import clear_auth_cookies, get_current_user
 from backend.db.database import get_db
 from backend.db.models import User
@@ -15,11 +16,11 @@ class UpdateUserRequest(BaseModel):
     harbor_id: Optional[UUID] = None
     default_species: Optional[str] = None
 
-@router.get("/me")
+@router.get("/me", response_model=UserResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
-@router.put("/me")
+@router.put("/me", response_model=UserResponse)
 async def update_me(body: UpdateUserRequest, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if body.full_name is not None:
         current_user.full_name = body.full_name

@@ -6,8 +6,6 @@ const MAX_TILE_CACHE_ENTRIES = 200;
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/static/css/variables.css',
-  '/static/css/reset.css',
   '/static/css/main.css',
   '/static/js/api.js',
   '/static/js/map.js',

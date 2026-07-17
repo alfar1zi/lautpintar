@@ -30,21 +30,24 @@ def create_refresh_token() -> str:
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 
+def _cookie_secure() -> bool:
+    return settings.APP_ENV != "development"
+
 def set_auth_cookies(response: Response, access_token: str) -> None:
     response.set_cookie(key=ACCESS_COOKIE, value=f"Bearer {access_token}",
-                        httponly=True, secure=False, samesite="lax", max_age=3600)
+                        httponly=True, secure=_cookie_secure(), samesite="lax", max_age=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES * 60)
 
 def set_refresh_cookie(response: Response, refresh_token: str) -> None:
     max_age = settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
     response.set_cookie(key=REFRESH_COOKIE, value=refresh_token,
-                        httponly=True, secure=False, samesite="lax", max_age=max_age)
+                        httponly=True, secure=_cookie_secure(), samesite="lax", max_age=max_age)
 
 def refresh_token_expires_at() -> datetime:
     return datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS)
 
 def clear_auth_cookies(response: Response) -> None:
-    response.delete_cookie(key=ACCESS_COOKIE, httponly=True, samesite="lax")
-    response.delete_cookie(key=REFRESH_COOKIE, httponly=True, samesite="lax")
+    response.delete_cookie(key=ACCESS_COOKIE, httponly=True, samesite="lax", secure=_cookie_secure())
+    response.delete_cookie(key=REFRESH_COOKIE, httponly=True, samesite="lax", secure=_cookie_secure())
 
 async def get_current_user(access_token: str | None = Cookie(default=None), db: AsyncSession = Depends(get_db)):
     from backend.db.models import User
@@ -54,7 +57,7 @@ async def get_current_user(access_token: str | None = Cookie(default=None), db: 
         raise exc
     token = access_token.removeprefix("Bearer ")
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM], options={"require": ["exp"], "verify_exp": True})
         user_id = payload.get("sub")
         if user_id is None:
             raise exc

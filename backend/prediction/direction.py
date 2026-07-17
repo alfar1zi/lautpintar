@@ -48,5 +48,10 @@ def find_top_recommendation(cells, harbor_lat, harbor_lng, max_radius_km=150.0):
         "category": best["category"], "fps": best["fps"],
         "direction": direction, "bearing_degrees": round(bearing, 1),
         "distance_km": round(dist_km, 1),
+        "sst_celsius": best.get("sst_celsius"),
+        "chlorophyll": best.get("chlorophyll"),
+        "is_upwelling": best.get("is_upwelling_zone"),
+        "is_thermal_front": best.get("is_thermal_front"),
+        "reasoning": best.get("reasoning", ""),
         "summary": f"Menuju arah {direction}, sekitar {dist_km:.0f} km dari pelabuhan Anda.",
     }

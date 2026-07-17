@@ -58,6 +58,8 @@ def calculate_fps(sst_celsius, chlorophyll, current_u, current_v, wind_speed_ms,
     if depth_m is not None:
         if depth_m < 5:
             return 0.0, "AVOID", "Bukan perairan layar."
+        if depth_m < cfg["depth_min_m"]:
+            return 0.0, "AVOID", f"Terlalu dangkal ({depth_m:.0f}m) untuk {cfg['name_id']}."
         if depth_m > cfg["depth_max_m"]:
             depth_penalty = 0.65
 

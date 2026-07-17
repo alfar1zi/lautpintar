@@ -71,7 +71,11 @@ async def fetch_chlorophyll_8day(lat_min, lat_max, lon_min, lon_max, date_str):
 
 
 async def fetch_ocean_current(lat_min, lat_max, lon_min, lon_max, date_str):
-    import copernicusmarine as cm
+    try:
+        import copernicusmarine as cm
+    except ImportError:
+        log.warning("copernicusmarine_not_installed")
+        return {}, {}
     ds = await asyncio.to_thread(cm.open_dataset,
         dataset_id=settings.CMEMS_DATASET_CURRENT,
         variables=["uo", "vo"],
@@ -163,7 +167,10 @@ async def update_single_region(region_key, region, species):
     cells = run_prediction_grid(sst_grid=sst_grid, chl_grid=chl_grid, current_u_grid=u_grid, current_v_grid=v_grid, wind_data=wind_data, depth_grid=depth_grid, upwelling_mask=upwelling_set, thermal_front_mask=thermal_set, species=species, prediction_date=today)
 
     redis = await get_redis()
-    await pregenerate_region_tiles(cells, region_key, species, zoom_levels=[8, 9, 10], redis_client=redis, ttl_seconds=21600)
+    try:
+        await pregenerate_region_tiles(cells, region_key, species, zoom_levels=[8, 9, 10], redis_client=redis, ttl_seconds=21600)
+    except Exception as e:
+        log.warning("tile_generation_failed", error=str(e))
 
     cells_json = []
     for c in cells:
