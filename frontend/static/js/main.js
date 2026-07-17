@@ -267,6 +267,9 @@
   document.getElementById('btn-ak-notifikasi')?.addEventListener('click',()=>alert('Pengaturan notifikasi'));
   document.getElementById('btn-ak-bahasa')?.addEventListener('click',()=>alert('Bahasa: Bahasa Indonesia'));
   document.getElementById('btn-ak-tentang')?.addEventListener('click',()=>alert('LautPintar v3.5.0 - Prediksi zona tangkap ikan'));
+  document.getElementById('btn-bd-lihat-grafik')?.addEventListener('click',()=>alert('Grafik prakiraan cuaca 24 jam'));
+  document.getElementById('btn-rw-filter')?.addEventListener('click',()=>alert('Filter riwayat perjalanan'));
+  document.getElementById('btn-nv-detail-rute')?.addEventListener('click',()=>alert('Detail rute perjalanan'));
   document.getElementById('btn-ak-logout').addEventListener('click',async()=>{
     try{await API.auth.logout();}catch(e){}
     localStorage.removeItem('lp_user_id');
