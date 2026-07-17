@@ -132,14 +132,16 @@
 
 <!-- PETA -->
 <div id="screen-peta" class="screen">
-  <div class="pt-top"><span class="pt-title">Peta Lokasi Ikan</span><button id="btn-pt-akun" class="pt-icn"><img src="/static/icons/ui/akun.png" width="20" height="20"></button></div>
+  <div class="pt-top"><span class="pt-title">Peta Lokasi Ikan</span><div><button id="btn-pt-download" class="pt-icn" title="Simpan peta offline"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button id="btn-pt-akun" class="pt-icn"><img src="/static/icons/ui/akun.png" width="20" height="20"></button></div></div>
   <div id="pt-map" class="pt-map"></div>
+  <button id="btn-pt-gps" class="pt-gps-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></button>
   <div class="pt-sheet">
     <div class="pt-handle"></div>
     <div class="pt-shdr"><span class="pt-shtitle">Lokasi Terbaik</span><span id="pt-update" class="pt-update">Update -</span></div>
     <div class="pt-stats"><div><span id="pt-dist" class="pt-statnum">-</span><span class="pt-statlabel">km</span></div><div><span id="pt-time" class="pt-statnum">-</span><span class="pt-statlabel">menit</span></div></div>
     <div class="pt-coord"><span id="pt-coord">-</span></div>
     <button id="btn-pt-detail" class="db-btn2">Lihat Detail</button>
+    <button id="btn-pt-navigate" class="db-btn1" style="width:100%;">Navigasi ke Sini</button>
   </div>
 </div>
 

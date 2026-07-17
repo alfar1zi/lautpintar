@@ -57,6 +57,8 @@
     e.preventDefault();
     document.getElementById('form-login').classList.add('hidden');
     document.getElementById('form-register').classList.remove('hidden');
+    document.getElementById('login-form-overlay').classList.remove('hidden');
+    document.getElementById('login-form-overlay').classList.add('open');
   });
   document.getElementById('link-to-login-form').addEventListener('click',e=>{
     e.preventDefault();
@@ -82,6 +84,7 @@
       }
       UI.currentSpecies=user.default_species||'tongkol';
       document.getElementById('login-form-overlay').classList.remove('open');
+      document.getElementById('login-form-overlay').classList.add('hidden');
       UI.show('screen-beranda');
       UI.updateNav('screen-beranda');
       if(UI.currentHarbor||UI.currentCoords)UI.loadZone(UI.currentSpecies);
@@ -105,6 +108,7 @@
       UI.setGreeting(user.full_name);
       UI.currentSpecies=species||'tongkol';
       document.getElementById('login-form-overlay').classList.remove('open');
+      document.getElementById('login-form-overlay').classList.add('hidden');
       UI.show('screen-beranda');
       UI.updateNav('screen-beranda');
       if(UI.currentCoords)UI.loadZone(UI.currentSpecies);
@@ -173,6 +177,41 @@
     UI.show('screen-akun');
     UI.updateNav('screen-akun');
   });
+  document.getElementById('btn-pt-gps')?.addEventListener('click',()=>{
+    if(!navigator.geolocation){alert('GPS tidak tersedia');return;}
+    navigator.geolocation.getCurrentPosition(
+      p=>{
+        const lat=p.coords.latitude,lng=p.coords.longitude;
+        UI.currentCoords={lat,lng};
+        if(initPetaMap.blueDot)initPetaMap.blueDot.setLatLng([lat,lng]);
+        else initPetaMap.blueDot=L.circleMarker([lat,lng],{radius:8,color:'#1976D2',fillColor:'#1976D2',fillOpacity:0.8}).addTo(petaMap);
+        petaMap.flyTo([lat,lng],8,{duration:1});
+      },
+      ()=>{alert('Izin lokasi ditolak.');},
+      {enableHighAccuracy:true,timeout:10000}
+    );
+  });
+  document.getElementById('btn-pt-navigate')?.addEventListener('click',()=>{
+    const rec=UI.getTopRec();
+    if(rec)navigateToZone(rec);
+  });
+  document.getElementById('btn-pt-download')?.addEventListener('click',()=>{
+    if('serviceWorker'in navigator&&navigator.serviceWorker.controller){
+      caches.open('lautpintar-tiles-v3').then(cache=>{
+        const btns=document.getElementById('btn-pt-download');
+        btns.innerHTML='<span style="font-size:16px;">...</span>';
+        for(let z=7;z<=12;z++){
+          for(let x=Math.pow(2,z-1);x<Math.pow(2,z);x+=4){
+            for(let y=0;y<Math.pow(2,z-1);y+=4){
+              const url=`/api/v1/prediction/tile/${z}/${x}/${y}.png?species=${UI.currentSpecies}`;
+              cache.add(url).catch(()=>{});
+            }
+          }
+        }
+        setTimeout(()=>{btns.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';alert('Peta siap offline.');},500);
+      });
+    }else{alert('Buka halaman ini lewat browser, bukan file lokal.');}
+  });
 
   // === PETA DETAIL ===
   document.getElementById('btn-pd-back').addEventListener('click',()=>{
@@ -217,6 +256,9 @@
     petaMap=L.map(container,{center:[-2.5,117.5],zoom:5,zoomControl:false,attributionControl:false});
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:4,opacity:0.7}).addTo(petaMap);
     L.control.zoom({position:'topleft'}).addTo(petaMap);
+    if(UI.currentCoords){
+      window.initPetaMap.blueDot=L.circleMarker([UI.currentCoords.lat,UI.currentCoords.lng],{radius:8,color:'#1976D2',fillColor:'#1976D2',fillOpacity:0.8}).addTo(petaMap);
+    }
     setTimeout(()=>petaMap.invalidateSize(),200);
     const rec=UI.getTopRec();
     if(rec){
@@ -237,6 +279,12 @@
       navMap=L.map(container,{center:[lat,lng],zoom:9,zoomControl:false,attributionControl:false});
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:4,opacity:0.7}).addTo(navMap);
       L.marker([lat,lng]).addTo(navMap).bindPopup('Zona Rekomendasi');
+      if(UI.currentCoords){
+        const clat=UI.currentCoords.lat,clng=UI.currentCoords.lng;
+        L.circleMarker([clat,clng],{radius:8,color:'#1976D2',fillColor:'#1976D2',fillOpacity:0.8}).addTo(navMap).bindPopup('Lokasi Saya');
+        L.polyline([[clat,clng],[lat,lng]],{color:'#1976D2',weight:3,dashArray:'8,6',opacity:0.7}).addTo(navMap);
+        navMap.fitBounds([[clat,clng],[lat,lng]],{padding:[30,30]});
+      }
       setTimeout(()=>navMap.invalidateSize(),200);
     },100);
   };

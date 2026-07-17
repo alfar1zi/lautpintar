@@ -193,3 +193,8 @@ body { font-family:'Poppins',sans-serif; background:#f3faff; overflow:hidden; he
 .ak-menu button:active { background:#F8F9FA; }
 .ak-logout { margin:16px; min-height:48px; border-radius:12px; border:1px solid #BA1A1A; background:transparent; color:#BA1A1A; font-size:15px; font-weight:600; font-family:'Poppins',sans-serif; cursor:pointer; }
 .ak-ver { text-align:center; font-size:12px; color:#717783; padding:8px; }
+
+/* ========== PETA GPS BUTTON ========== */
+.pt-gps-btn { position:absolute; bottom:320px; right:16px; width:48px; height:48px; background:#fff; border:1px solid rgba(0,0,0,0.1); border-radius:50%; z-index:10; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+.pt-gps-btn:active { background:#f0f0f0; }
+#screen-peta { position:relative; }
