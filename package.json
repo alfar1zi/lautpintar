@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "impeccable": "^3.2.1"
+  },
+  "allowScripts": {
+    "puppeteer@25.3.0": true
+  },
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}
