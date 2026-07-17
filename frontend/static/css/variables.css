@@ -1,0 +1,33 @@
+:root {
+  --ocean-deep: #F7F3EB;
+  --ocean-mid: #FEFCF7;
+  --ocean-surface: #ECE7DD;
+  --border-subtle: rgba(1, 29, 44, 0.08);
+  --border-medium: rgba(1, 29, 44, 0.14);
+  --teal: #00595D;
+  --teal-dark: #003E41;
+  --text-on-teal: #FFFFFF;
+  --text-primary: #011D2C;
+  --text-secondary: #3A505E;
+  --text-muted: #516371;
+  --zone-high: #005D32;
+  --zone-high-bg: rgba(0, 93, 50, 0.12);
+  --zone-medium: #7F5300;
+  --zone-medium-bg: rgba(127, 83, 0, 0.12);
+  --zone-low: #005478;
+  --zone-low-bg: rgba(0, 84, 120, 0.12);
+  --zone-unsafe: #B71824;
+  --zone-unsafe-bg: rgba(183, 24, 36, 0.12);
+  --warning-bg: #966634;
+  --warning-text: #FEFCF7;
+  --radius: 8px;
+  --radius-lg: 16px;
+  --touch-min: 48px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --bg-gradient-top: #1662A7;
+  --bg-gradient-bottom: #6EAEF6;
+  --surface-card: #FAFAFA;
+  --text-headline: #0B1626;
+  --text-secondary-light: #8A93A6;
+  --icon-primary: #4B90E0;
+}
