@@ -42,6 +42,7 @@ body { font-family:'Poppins',sans-serif; background:#f3faff; overflow:hidden; he
 .login-footer a { color:#1976D2; font-weight:600; text-decoration:none; }
 .form-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.35); display:none; align-items:flex-end; justify-content:center; z-index:100; }
 .form-overlay.open { display:flex; }
+.form-overlay.hidden { display:none !important; }
 .form-sheet { width:100%; max-width:430px; background:#fff; border-radius:16px 16px 0 0; padding:16px 20px calc(32px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:12px; max-height:80vh; overflow-y:auto; }
 .form-bar { width:40px; height:4px; background:#C1C6D4; border-radius:4px; margin:0 auto 8px; }
 .form-sheet input, .form-sheet select { width:100%; height:50px; padding:0 16px; border-radius:12px; border:1px solid #C1C6D4; background:#fff; font-size:14px; font-family:'Poppins',sans-serif; }

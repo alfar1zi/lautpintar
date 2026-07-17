@@ -33,19 +33,19 @@ def bearing_to_text_id(bearing):
 def find_top_recommendation(cells, harbor_lat, harbor_lng, max_radius_km=150.0):
     candidates = [
         c for c in cells
-        if c.category in ("HIGH", "MEDIUM")
-        and haversine_km(harbor_lat, harbor_lng, c.lat, c.lng) <= max_radius_km
+        if c["category"] in ("HIGH", "MEDIUM")
+        and haversine_km(harbor_lat, harbor_lng, c["lat"], c["lng"]) <= max_radius_km
     ]
     if not candidates:
         return None
-    candidates.sort(key=lambda c: (0 if c.category == "HIGH" else 1, haversine_km(harbor_lat, harbor_lng, c.lat, c.lng)))
+    candidates.sort(key=lambda c: (0 if c["category"] == "HIGH" else 1, haversine_km(harbor_lat, harbor_lng, c["lat"], c["lng"])))
     best = candidates[0]
-    dist_km = haversine_km(harbor_lat, harbor_lng, best.lat, best.lng)
-    bearing = bearing_degrees(harbor_lat, harbor_lng, best.lat, best.lng)
+    dist_km = haversine_km(harbor_lat, harbor_lng, best["lat"], best["lng"])
+    bearing = bearing_degrees(harbor_lat, harbor_lng, best["lat"], best["lng"])
     direction = bearing_to_text_id(bearing)
     return {
-        "zone_lat": best.lat, "zone_lng": best.lng,
-        "category": best.category, "fps": best.fps,
+        "zone_lat": best["lat"], "zone_lng": best["lng"],
+        "category": best["category"], "fps": best["fps"],
         "direction": direction, "bearing_degrees": round(bearing, 1),
         "distance_km": round(dist_km, 1),
         "summary": f"Menuju arah {direction}, sekitar {dist_km:.0f} km dari pelabuhan Anda.",

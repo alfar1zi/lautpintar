@@ -117,7 +117,6 @@ def calculate_fps(sst_celsius, chlorophyll, current_u, current_v, wind_speed_ms,
 
 
 def run_prediction_grid(sst_grid, chl_grid, current_u_grid, current_v_grid, wind_data, depth_grid, upwelling_mask, thermal_front_mask, species, prediction_date):
-    from .engine import is_fishing_ban_active
     results = []
     all_coords = set(sst_grid.keys()) | set(chl_grid.keys())
     for coord in all_coords:

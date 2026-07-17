@@ -44,11 +44,14 @@
 
   // === LOGIN ===
   document.getElementById('btn-show-login-form').addEventListener('click',()=>{
+    document.getElementById('login-form-overlay').classList.remove('hidden');
     document.getElementById('login-form-overlay').classList.add('open');
   });
   document.getElementById('login-form-overlay').addEventListener('click',e=>{
-    if(e.target===document.getElementById('login-form-overlay'))
+    if(e.target===document.getElementById('login-form-overlay')){
       document.getElementById('login-form-overlay').classList.remove('open');
+      document.getElementById('login-form-overlay').classList.add('hidden');
+    }
   });
   document.getElementById('link-to-register').addEventListener('click',e=>{
     e.preventDefault();
@@ -216,7 +219,7 @@
     L.control.zoom({position:'topleft'}).addTo(petaMap);
     setTimeout(()=>petaMap.invalidateSize(),200);
     const rec=UI.getTopRec();
-    if(rec&&UI.instance){
+    if(rec){
       L.marker([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng]).addTo(petaMap).bindPopup('Zona Rekomendasi');
       petaMap.flyTo([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng],8,{duration:1});
     }
