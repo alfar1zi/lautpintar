@@ -16,8 +16,6 @@ def configure_logging() -> None:
     )
 
 
-configure_logging()
-
 
 def get_logger(name: str | None = None):
     return structlog.get_logger(name)

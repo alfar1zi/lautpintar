@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#1976D2">
   <title>LautPintar</title>
   <link rel="manifest" href="/manifest.json">
-  <link rel="icon" type="image/svg+xml" sizes="192x192" href="/static/icons/logo-default.svg">
-  <link rel="apple-touch-icon" href="/static/icons/logo-default.svg">
+  <link rel="icon" type="image/svg+xml" sizes="192x192" href="/static/icons/logo-default.png">
+  <link rel="apple-touch-icon" href="/static/icons/logo-default.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/main.css">
@@ -18,7 +18,7 @@
 <div id="screen-splash" class="screen screen-active">
   <div class="splash-contain">
     <div class="splash-body">
-      <img src="/static/icons/logo-putih.svg" class="splash-img">
+      <img src="/static/icons/logo-putih.png" class="splash-img" alt="LautPintar">
       <span class="splash-text">LautPintar</span>
     </div>
   </div>
@@ -27,7 +27,7 @@
 <!-- ONBOARDING -->
 <div id="screen-onboarding" class="screen">
   <div class="ob-page">
-    <img src="/static/icons/logo-onboarding.svg" class="ob-hero">
+    <img src="/static/icons/logo-onboarding.png" class="ob-hero" alt="Ilustrasi laut dan nelayan">
     <div class="ob-content">
       <span class="ob-title">Temukan lokasi ikan terbaik dengan data dan AI</span>
       <button id="btn-ob-next" class="ob-btn">Lanjut</button>
@@ -39,7 +39,7 @@
 <!-- GPS PERMISSION -->
 <div id="screen-gps" class="screen">
   <div class="gps-page">
-    <img src="/static/icons/ui/gps.png" class="gps-icon-big">
+    <img src="/static/icons/ui/gps.png" class="gps-icon-big" alt="">
     <span class="gps-title">Izinkan akses lokasi</span>
     <span class="gps-desc">Kami menggunakan ini untuk menunjukkan lokasi ikan terbaik di sekitar. Pengaturan akses di ponsel.</span>
     <span class="gps-note">Lokasi Anda diproses sesuai Kebijakan Privasi kami.</span>
@@ -51,7 +51,7 @@
 <!-- LOGIN -->
 <div id="screen-login" class="screen">
   <div class="login-page">
-    <img src="/static/icons/logo-default.svg" class="login-hero">
+    <img src="/static/icons/logo-default.png" class="login-hero" alt="LautPintar">
     <span class="login-title">Selamat Datang di LautPintar</span>
     <span class="login-sub">Masuk untuk melanjutkan</span>
     <button id="btn-show-login-form" class="login-email-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg> Masuk dengan Email</button>
@@ -83,11 +83,11 @@
   <div class="db-page">
     <div class="db-topbar"><span class="db-greeting">Hai, Nelayan!</span>
       <div><button id="btn-db-notif" class="db-icn"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
-      <button id="btn-db-akun" class="db-icn"><img src="/static/icons/ui/akun.png" width="24" height="24"></button></div>
+      <button id="btn-db-akun" class="db-icn"><img src="/static/icons/ui/akun.png" width="24" height="24" alt="Akun"></button></div>
     </div>
     <div class="db-scroll">
       <div id="db-nodata" class="db-nodata">
-        <img src="/static/icons/ui/gps.png" width="48" height="48">
+        <img src="/static/icons/ui/gps.png" width="48" height="48" alt="">
         <span class="db-nodata-title">Belum Ada Lokasi</span>
         <span class="db-nodata-desc">Pilih pelabuhan atau aktifkan GPS untuk melihat prediksi.</span>
         <button id="btn-db-pilih-lokasi" class="db-btn2">Pilih Pelabuhan</button>
@@ -100,9 +100,9 @@
           <span class="db-clabel">Kondisi hari ini</span>
           <span class="db-ctext" id="db-ktext">Aman untuk melaut</span>
           <div class="db-mgrid">
-            <div class="db-mcard"><img src="/static/icons/ui/wave.png" width="24" height="24"><span id="db-wave" class="db-mval">-</span><span class="db-mlabel">Gelombang</span></div>
-            <div class="db-mcard"><img src="/static/icons/ui/wind.png" width="24" height="24"><span id="db-wind" class="db-mval">-</span><span class="db-mlabel">Angin</span></div>
-            <div class="db-mcard"><img src="/static/icons/ui/thermometer.png" width="24" height="24"><span id="db-sst" class="db-mval">-</span><span class="db-mlabel">Suhu Air</span></div>
+            <div class="db-mcard"><img src="/static/icons/ui/wave.png" width="24" height="24" alt=""><span id="db-wave" class="db-mval">-</span><span class="db-mlabel">Gelombang</span></div>
+            <div class="db-mcard"><img src="/static/icons/ui/wind.png" width="24" height="24" alt=""><span id="db-wind" class="db-mval">-</span><span class="db-mlabel">Angin</span></div>
+            <div class="db-mcard"><img src="/static/icons/ui/thermometer.png" width="24" height="24" alt=""><span id="db-sst" class="db-mval">-</span><span class="db-mlabel">Suhu Air</span></div>
           </div>
           <button id="btn-db-lihat-cuaca" class="db-link">Lihat detail cuaca</button>
         </div>
@@ -122,13 +122,13 @@
       </div>
       <div id="db-nav-btn" class="db-hide"><button id="btn-db-navigate" class="db-btn1">Mulai Navigasi</button></div>
     </div>
-    <nav class="db-navbar"><button class="db-nav active" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png"><span>Peta</span></button><button class="db-nav" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png"><span>Riwayat</span></button><button class="db-nav" data-goto="screen-akun"><img src="/static/icons/ui/akun.png"><span>Akun</span></button></nav>
+    <nav class="db-navbar"><button class="db-nav active" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png" alt="Beranda"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png" alt="Peta"><span>Peta</span></button><button class="db-nav" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png" alt="Riwayat"><span>Riwayat</span></button><button class="db-nav" data-goto="screen-akun"><img src="/static/icons/ui/akun.png" alt="Akun"><span>Akun</span></button></nav>
   </div>
 </div>
 
 <!-- PETA -->
 <div id="screen-peta" class="screen">
-  <div class="pt-top"><span class="pt-title">Peta Lokasi Ikan</span><div><button id="btn-pt-download" class="pt-icn" title="Simpan peta offline"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button id="btn-pt-akun" class="pt-icn"><img src="/static/icons/ui/akun.png" width="20" height="20"></button></div></div>
+  <div class="pt-top"><span class="pt-title">Peta Lokasi Ikan</span><div><button id="btn-pt-download" class="pt-icn" title="Simpan peta offline"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button><button id="btn-pt-akun" class="pt-icn"><img src="/static/icons/ui/akun.png" width="20" height="20" alt="Akun"></button></div></div>
   <div id="pt-map" class="pt-map"></div>
   <button id="btn-pt-gps" class="pt-gps-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4m10-10h-4M6 12H2"/></svg></button>
   <div class="pt-sheet">
@@ -139,7 +139,7 @@
     <button id="btn-pt-detail" class="db-btn2">Lihat Detail</button>
     <button id="btn-pt-navigate" class="db-btn1" style="width:100%;">Navigasi ke Sini</button>
   </div>
-  <nav class="db-navbar"><button class="db-nav active" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png"><span>Peta</span></button><button class="db-nav" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png"><span>Riwayat</span></button><button class="db-nav" data-goto="screen-akun"><img src="/static/icons/ui/akun.png"><span>Akun</span></button></nav>
+  <nav class="db-navbar"><button class="db-nav active" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png" alt="Beranda"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png" alt="Peta"><span>Peta</span></button><button class="db-nav" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png" alt="Riwayat"><span>Riwayat</span></button><button class="db-nav" data-goto="screen-akun"><img src="/static/icons/ui/akun.png" alt="Akun"><span>Akun</span></button></nav>
 </div>
 
 <!-- PETA DETAIL -->
@@ -186,7 +186,7 @@
 <div id="screen-akun" class="screen">
   <div class="ak-page">
     <span class="ak-title">Akun Saya</span>
-    <div class="ak-profile"><img src="/static/icons/logo-default.svg" class="ak-avatar"><span id="ak-nama" class="ak-nama">-</span></div>
+    <div class="ak-profile"><img src="/static/icons/logo-default.png" class="ak-avatar" alt="Foto profil"><span id="ak-nama" class="ak-nama">-</span></div>
     <div class="ak-menu"><button id="btn-ak-cuaca">Cuaca dan Kondisi <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button><button id="btn-ak-bantuan">Bantuan dan FAQ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div>
     <button id="btn-ak-logout" class="ak-logout">Keluar</button>
     <span class="ak-ver">Versi 3.5.0</span>

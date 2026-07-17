@@ -47,20 +47,17 @@
 
   // === LOGIN ===
   document.getElementById('btn-show-login-form').addEventListener('click',()=>{
-    document.getElementById('login-form-overlay').classList.remove('hidden');
     document.getElementById('login-form-overlay').classList.add('open');
   });
   document.getElementById('login-form-overlay').addEventListener('click',e=>{
     if(e.target===document.getElementById('login-form-overlay')){
       document.getElementById('login-form-overlay').classList.remove('open');
-      document.getElementById('login-form-overlay').classList.add('hidden');
     }
   });
   document.getElementById('link-to-register').addEventListener('click',e=>{
     e.preventDefault();
     document.getElementById('form-login').classList.add('hidden');
     document.getElementById('form-register').classList.remove('hidden');
-    document.getElementById('login-form-overlay').classList.remove('hidden');
     document.getElementById('login-form-overlay').classList.add('open');
   });
   document.getElementById('link-to-login-form').addEventListener('click',e=>{
@@ -88,7 +85,6 @@
       }
       UI.currentSpecies=user.default_species||'tongkol';
       document.getElementById('login-form-overlay').classList.remove('open');
-      document.getElementById('login-form-overlay').classList.add('hidden');
       UI.show('screen-beranda');
       UI.updateNav('screen-beranda');
       if(UI.currentHarbor||UI.currentCoords)UI.loadZone(UI.currentSpecies);
@@ -113,7 +109,6 @@
       UI.setGreeting(user.full_name);
       UI.currentSpecies='tongkol';
       document.getElementById('login-form-overlay').classList.remove('open');
-      document.getElementById('login-form-overlay').classList.add('hidden');
       UI.show('screen-beranda');
       UI.updateNav('screen-beranda');
       if(UI.currentCoords)UI.loadZone(UI.currentSpecies);
@@ -235,7 +230,7 @@
             }
           }
         }
-        setTimeout(()=>{if(ok>0){btns.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';alert('Peta siap offline.');}},500);
+        setTimeout(()=>{if(ok>0){btns.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';alert('Peta siap offline.');}else btns.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';},500);
       });
     }else{alert('Buka halaman ini lewat browser, bukan file lokal.');}
   });
@@ -282,18 +277,18 @@
   window.initPetaMap=function(){
     const container=document.getElementById('pt-map');
     if(!container)return;
-    if(petaMap){petaMap.invalidateSize();return;}
-    petaMap=L.map(container,{center:[-2.5,117.5],zoom:5,zoomControl:false,attributionControl:false});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:4,opacity:0.7}).addTo(petaMap);
-    L.control.zoom({position:'topleft'}).addTo(petaMap);
-    if(UI.currentCoords){
-      window.initPetaMap.blueDot=L.circleMarker([UI.currentCoords.lat,UI.currentCoords.lng],{radius:8,color:'#1976D2',fillColor:'#1976D2',fillOpacity:0.8}).addTo(petaMap);
+    if(petaMap){petaMap.invalidateSize();}
+    else{
+      petaMap=L.map(container,{center:[-2.5,117.5],zoom:5,zoomControl:false,attributionControl:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:4,opacity:0.7}).addTo(petaMap);
+      L.control.zoom({position:'topleft'}).addTo(petaMap);
+      if(UI.currentCoords){
+        window.initPetaMap.blueDot=L.circleMarker([UI.currentCoords.lat,UI.currentCoords.lng],{radius:8,color:'#1976D2',fillColor:'#1976D2',fillOpacity:0.8}).addTo(petaMap);
+      }
+      setTimeout(()=>petaMap.invalidateSize(),200);
     }
-    setTimeout(()=>petaMap.invalidateSize(),200);
     const rec=UI.getTopRec();
     if(rec){
-      L.marker([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng]).addTo(petaMap).bindPopup('Zona Rekomendasi');
-      petaMap.flyTo([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng],8,{duration:1});
       document.getElementById('pt-dist').textContent=Math.round(rec.distance_km||0);
       document.getElementById('pt-time').textContent=Math.max(1,Math.round((rec.distance_km||0)/15));
       document.getElementById('pt-coord').textContent=`${rec.zone_lat?.toFixed(3)||rec.lat?.toFixed(3)||'-'}, ${rec.zone_lng?.toFixed(3)||rec.lng?.toFixed(3)||'-'}`;

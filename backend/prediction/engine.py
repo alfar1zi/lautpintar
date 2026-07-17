@@ -25,7 +25,7 @@ def is_fishing_ban_active(lat, lng, check_date):
     from pathlib import Path
     try:
         bans = json.loads(Path("backend/data/fishing_seasons.json").read_text(encoding="utf-8"))
-    except:
+    except Exception:
         return False
     month = check_date.month
     for ban in bans.get("bans", []):

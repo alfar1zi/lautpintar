@@ -135,7 +135,7 @@ async def update_single_region(region_key, region, species):
     u_grid, v_grid = {}, {}
     try:
         u_grid, v_grid = await fetch_ocean_current(lat_min, lat_max, lon_min, lon_max, date_str)
-    except:
+    except Exception:
         pass
 
     center_lat = (lat_min + lat_max) / 2.0
@@ -190,7 +190,7 @@ async def update_single_region(region_key, region, species):
     try:
         redis = await get_redis()
         await redis.setex(f"weather:{region_key}", 21600, json.dumps(bmkg_data))
-    except:
+    except Exception:
         pass
 
     log.info("region_updated", region=region_key, species=species, cells=len(cells))

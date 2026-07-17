@@ -63,7 +63,9 @@ async def get_current_user(access_token: str | None = Cookie(default=None), db: 
             raise exc
     except JWTError:
         raise exc
-    result = await db.execute(select(User).where(User.id == UUID(user_id)))
+    try: uid = UUID(user_id)
+    except ValueError: raise exc
+    result = await db.execute(select(User).where(User.id == uid))
     user = result.scalar_one_or_none()
     if user is None or not user.is_active:
         raise exc
