@@ -12,7 +12,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' unpkg.com cdnjs.cloudflare.com; "
-            "style-src 'self' 'unsafe-inline' unpkg.com; "
+            "style-src 'self' 'unsafe-inline' unpkg.com fonts.googleapis.com; "
+            "font-src fonts.gstatic.com; "
             "img-src 'self' data: *.tile.openstreetmap.org blob:; "
             "connect-src 'self' unpkg.com cdnjs.cloudflare.com;"
         )
