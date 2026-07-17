@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.auth.models import LoginRequest, RegisterRequest, TokenResponse, UserResponse
 from backend.auth.service import (
     REFRESH_COOKIE, clear_auth_cookies, create_access_token, create_refresh_token,
-    hash_password, hash_token, set_auth_cookies, set_refresh_cookie, verify_password,
+    hash_password, hash_token, refresh_token_expires_at, set_auth_cookies, set_refresh_cookie, verify_password,
 )
 from backend.db.database import get_db
 from backend.db.models import RefreshToken, User
@@ -18,7 +18,7 @@ async def _store_refresh_token(session: AsyncSession, user_id, raw_refresh: str)
     session.add(RefreshToken(
         user_id=user_id,
         token_hash=hash_token(raw_refresh),
-        expires_at=datetime.now(timezone.utc),
+        expires_at=refresh_token_expires_at(),
     ))
 
 
@@ -57,7 +57,7 @@ async def login(body: LoginRequest, response: Response, session: AsyncSession = 
 
 
 @router.post("/logout", response_model=TokenResponse)
-async def logout(response: Response, session: AsyncSession = Depends(get_db)):
+async def logout(request: Request, response: Response, session: AsyncSession = Depends(get_db)):
     raw_refresh = request.cookies.get(REFRESH_COOKIE)
     if raw_refresh:
         token_hash = hash_token(raw_refresh)
@@ -68,3 +68,36 @@ async def logout(response: Response, session: AsyncSession = Depends(get_db)):
             await session.commit()
     clear_auth_cookies(response)
     return TokenResponse(message="logged out")
+
+
+@router.post("/refresh", response_model=TokenResponse)
+async def refresh(request: Request, response: Response, session: AsyncSession = Depends(get_db)):
+    raw_refresh = request.cookies.get(REFRESH_COOKIE)
+    if not raw_refresh:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
+    token_hash = hash_token(raw_refresh)
+    now = datetime.now(timezone.utc)
+    result = await session.execute(
+        select(RefreshToken).where(
+            RefreshToken.token_hash == token_hash,
+            RefreshToken.revoked.is_(False),
+            RefreshToken.expires_at > now,
+        )
+    )
+    db_token = result.scalar_one_or_none()
+    if not db_token:
+        clear_auth_cookies(response)
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired refresh token")
+    user_result = await session.execute(select(User).where(User.id == db_token.user_id))
+    user = user_result.scalar_one_or_none()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
+    db_token.revoked = True
+    await session.flush()
+    access_token = create_access_token(str(user.id))
+    new_raw_refresh = create_refresh_token()
+    await _store_refresh_token(session, user.id, new_raw_refresh)
+    await session.commit()
+    set_auth_cookies(response, access_token)
+    set_refresh_cookie(response, new_raw_refresh)
+    return TokenResponse(message="refreshed")
