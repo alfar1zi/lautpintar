@@ -75,36 +75,140 @@
 </div>
 
 <div id="screen-app" class="screen screen-beranda">
+  <div id="offline-banner" class="offline-banner hidden">
+    <span>Offline - menampilkan data terakhir tersimpan</span>
+  </div>
   <header class="bd-header">
     <h1 class="bd-greeting">Hai, Nelayan!</h1>
   </header>
   <div class="bd-scroll">
     <div id="bd-nodata">
       <div class="bd-nodata-card">
-        <h3>Belum Ada Lokasi</h3>
-        <p>Pilih pelabuhan atau aktifkan GPS.</p>
+        <h3 class="bd-nodata-title">Belum Ada Lokasi</h3>
+        <p class="bd-nodata-desc">Pilih pelabuhan atau aktifkan GPS.</p>
         <button id="btn-bd-pilih-pelabuhan" class="bd-btn-outline">Pilih Pelabuhan</button>
         <button id="btn-bd-aktifkan-gps" class="bd-btn-primary">Aktifkan GPS</button>
       </div>
     </div>
+    <section class="bd-section hidden">
+      <h2>Rekomendasi Lokasi</h2>
+      <div id="bd-rekom-card">
+        <span id="bd-rekom-category">TINGGI</span>
+        <p id="bd-rekom-direction">-</p>
+        <p id="bd-rekom-distance">-</p>
+        <button id="btn-bd-cek-detail" class="bd-btn-outline">Cek Detail</button>
+        <button id="btn-bd-navigate" class="bd-btn-primary">Mulai Navigasi</button>
+      </div>
+    </section>
   </div>
 </div>
 
 <div id="screen-peta" class="screen">
+  <div class="peta-header">
+    <h1>Peta Lokasi Ikan</h1>
+  </div>
   <div class="peta-map" id="map-peta"></div>
   <button id="btn-peta-gps" class="peta-gps-btn">GPS</button>
+  <div id="peta-species" class="peta-species">
+    <button class="species-btn active" data-species="tongkol">Tongkol</button>
+    <button class="species-btn" data-species="cakalang">Cakalang</button>
+    <button class="species-btn" data-species="tuna_sirip_kuning">Tuna</button>
+    <button class="species-btn" data-species="kembung">Kembung</button>
+    <button class="species-btn" data-species="teri">Teri</button>
+    <button class="species-btn" data-species="layang">Layang</button>
+    <button class="species-btn" data-species="lemuru">Lemuru</button>
+  </div>
   <div id="peta-sheet" class="bottom-sheet">
+    <button class="bottom-sheet-handle"></button>
+    <div id="peta-sheet-loading" class="sheet-state hidden">
+      <div class="sheet-spinner"></div>
+      <p>Memuat prediksi...</p>
+    </div>
     <div id="peta-sheet-nodata" class="sheet-state">
       <p>Prediksi Belum Tersedia</p>
+      <button id="btn-peta-refresh" class="btn-secondary">Muat Ulang</button>
+    </div>
+    <div id="peta-sheet-recommendation" class="sheet-state hidden">
+      <p id="peta-rec-text">TINGGI</p>
+      <p id="peta-rec-dir">-</p>
+      <p id="peta-rec-km">- km</p>
+      <p id="peta-rec-summary">-</p>
+    </div>
+    <div id="peta-sheet-error" class="sheet-state hidden">
+      <p id="peta-error-text">Terjadi kesalahan.</p>
+      <button id="btn-peta-retry" class="btn-secondary">Coba Lagi</button>
     </div>
   </div>
 </div>
 
+<div id="screen-detail-lokasi" class="screen">
+  <div class="dl-header">
+    <button id="btn-back-detail" class="btn-back">Kembali</button>
+    <h2>Detail Lokasi</h2>
+  </div>
+  <div class="dl-content">
+    <div id="dl-map-mini" class="dl-map-mini"></div>
+    <div class="dl-section">
+      <div id="dl-category-badge" class="category-badge category-high">
+        <span id="dl-category-text">TINGGI</span>
+      </div>
+      <p id="dl-coord-text">-</p>
+    </div>
+    <div class="dl-section">
+      <h3>Kondisi Perairan</h3>
+      <p id="dl-sst">-</p>
+    </div>
+    <div class="dl-section">
+      <h3>Estimasi BBM</h3>
+      <p id="dl-fuel-total">-</p>
+    </div>
+  </div>
+  <div class="dl-action-bar">
+    <button id="btn-navigate-detail" class="bd-btn-primary">Arahkan Saya</button>
+  </div>
+</div>
+
+<div id="screen-cuaca" class="screen">
+  <div class="settings-header">
+    <button id="btn-back-cuaca" class="btn-back">Kembali</button>
+    <h2>Cuaca &amp; Kondisi</h2>
+  </div>
+  <div class="cuaca-scroll">
+    <p id="cuaca-wave-big">-</p>
+    <p id="cuaca-wind">-</p>
+    <div id="cuaca-desc">Memuat data cuaca...</div>
+  </div>
+</div>
+
+<div id="screen-notifikasi" class="screen">
+  <div class="settings-header">
+    <button id="btn-back-notifikasi" class="btn-back">Kembali</button>
+    <h2>Notifikasi</h2>
+  </div>
+  <div id="notif-empty"><p>Tidak Ada Notifikasi</p></div>
+</div>
+
 <div id="screen-riwayat" class="screen">
   <div class="riwayat-header"><h2>Riwayat Lokasi</h2></div>
-  <div id="riwayat-empty" class="riwayat-empty">
+  <div id="riwayat-empty">
     <p>Belum Ada Trip Tercatat</p>
+    <button id="btn-riwayat-beranda" class="btn-primary">Buka Beranda</button>
   </div>
+  <div id="riwayat-content" class="hidden">
+    <div id="riwayat-summary">
+      <div><span id="riwayat-total-trip">-</span><span>Total Trip</span></div>
+      <div><span id="riwayat-total-catch">-</span><span>Total Tangkapan</span></div>
+    </div>
+    <div id="riwayat-list"></div>
+  </div>
+</div>
+
+<div id="screen-bantuan" class="screen">
+  <div class="settings-header">
+    <button id="btn-back-bantuan" class="btn-back">Kembali</button>
+    <h2>Bantuan &amp; FAQ</h2>
+  </div>
+  <div><p>Apa itu LautPintar?</p></div>
 </div>
 
 <div id="screen-settings" class="screen">
@@ -112,9 +216,32 @@
     <button id="btn-back-settings" class="btn-back">Kembali</button>
     <h2>Akun Saya</h2>
   </div>
+  <div class="settings-content">
+    <div class="settings-section">
+      <h3>Profil</h3>
+      <input id="settings-name" type="text" placeholder="Nama Anda">
+      <select id="settings-harbor"></select>
+      <select id="settings-species">
+        <option value="tongkol">Tongkol</option>
+        <option value="cakalang">Cakalang</option>
+        <option value="tuna_sirip_kuning">Tuna Sirip Kuning</option>
+        <option value="kembung">Kembung</option>
+        <option value="teri">Teri</option>
+        <option value="layang">Layang</option>
+        <option value="lemuru">Lemuru</option>
+      </select>
+      <button id="btn-save-settings" class="btn-primary">Simpan</button>
+    </div>
+    <div class="settings-section">
+      <h3>Aplikasi</h3>
+      <button id="btn-menu-cuaca">Cuaca</button>
+      <button id="btn-menu-bantuan">Bantuan</button>
+    </div>
+    <button id="btn-logout" class="btn-danger">Keluar</button>
+  </div>
 </div>
 
-<nav id="bottom-nav" class="bottom-nav">
+<nav id="bottom-nav" class="bottom-nav hidden">
   <button class="bottom-nav-item active" data-screen="screen-app">Beranda</button>
   <button class="bottom-nav-item" data-screen="screen-peta">Peta</button>
   <button class="bottom-nav-item" data-screen="screen-riwayat">Riwayat</button>
@@ -123,6 +250,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/static/js/api.js"></script>
+<script src="/static/js/map.js"></script>
+<script src="/static/js/ui.js"></script>
 <script src="/static/js/main.js"></script>
 </body>
 </html>
