@@ -47,7 +47,7 @@ async def get_tile(key: str) -> Optional[bytes]:
 async def set_last_update(timestamp_iso: str):
     try:
         r = await get_redis()
-        await r.set("prediction:last_update", timestamp_iso.encode("utf-8"))
+        await r.setex("prediction:last_update", 86400, timestamp_iso.encode("utf-8"))
     except Exception:
         pass
 

@@ -52,7 +52,7 @@ const UI={
       this.lastWeatherData=w;
       this.updateKondisiCard(w);
       this.updateForecast(w);
-    }catch(e){}
+    }catch(e){console.warn('failed',e);}
   },
 
   updateKondisiCard(w){
@@ -118,7 +118,7 @@ const UI={
         document.getElementById('pd-wave').textContent=w.wave_height_m!=null?`${w.wave_height_m.toFixed(1)} m`:'-';
         document.getElementById('pd-wind').textContent=w.wind_speed_ms!=null?`${Math.round(w.wind_speed_ms*3.6)} km/h`:'-';
       }
-    }catch(e){}
+    }catch(e){console.warn('failed',e);}
   },
 
   async loadRiwayat(){

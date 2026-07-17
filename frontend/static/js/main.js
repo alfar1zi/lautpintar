@@ -221,9 +221,9 @@
       caches.open('lautpintar-tiles-v3').then(cache=>{
         const btns=document.getElementById('btn-pt-download');
         btns.innerHTML='<span style="font-size:16px;">...</span>';
-        for(let z=7;z<=12;z++){
-          for(let x=Math.pow(2,z-1);x<Math.pow(2,z);x+=4){
-            for(let y=0;y<Math.pow(2,z-1);y+=4){
+        for(let z=8;z<=10;z++){
+          for(let x=Math.floor(Math.pow(2,z-2));x<Math.floor(Math.pow(2,z-1));x+=2){
+            for(let y=0;y<Math.floor(Math.pow(2,z-2));y+=2){
               const url=`/api/v1/prediction/tile/${z}/${x}/${y}.png?species=${UI.currentSpecies}`;
               cache.add(url).catch(()=>{});
             }
@@ -245,6 +245,7 @@
   });
 
   // === NAVIGASI ===
+  document.getElementById('btn-nv-back')?.addEventListener('click',()=>{UI.show('screen-peta');UI.updateNav('screen-peta');});
   document.getElementById('btn-nv-mulai').addEventListener('click',()=>{
     alert('Navigasi dimulai. Ikuti arah kompas.');
   });

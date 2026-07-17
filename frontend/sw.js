@@ -8,7 +8,6 @@ const STATIC_ASSETS = [
   '/manifest.json',
   '/static/css/main.css',
   '/static/js/api.js',
-  '/static/js/map.js',
   '/static/js/ui.js',
   '/static/js/main.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
