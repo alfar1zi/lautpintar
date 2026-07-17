@@ -17,7 +17,9 @@ const STATIC_ASSETS = [
 // Install: cache static assets
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_STATIC).then(cache => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_STATIC).then(cache =>
+      Promise.allSettled(STATIC_ASSETS.map(function(a){return cache.add(a).catch(function(){})}))
+    )
   );
   self.skipWaiting();
 });

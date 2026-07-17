@@ -1,6 +1,9 @@
+'use strict';
 const UI={
   currentUser:null,currentHarbor:null,currentCoords:null,nearestHarborContext:null,
   currentSpecies:'tongkol',lastZoneData:null,lastWeatherData:null,
+
+  _catLabel(cat){return {'HIGH':'TINGGI','MEDIUM':'SEDANG','LOW':'RENDAH','UNSAFE':'BAHAYA','AVOID':'HINDARI'}[cat]||cat;},
 
   show(id){
     document.querySelectorAll('.screen').forEach(s=>s.classList.remove('screen-active'));
@@ -21,12 +24,14 @@ const UI={
 
   async loadZone(sp){
     if(!this.currentHarbor&&!this.currentCoords)return;
+    const badge=document.getElementById('db-rekom-badge');if(badge){badge.textContent='Memuat...';document.getElementById('db-rekom')?.classList.remove('db-hide');}
     try{
       let d;const lat=this.currentCoords?.lat,lng=this.currentCoords?.lng;
       if(lat&&lng)d=await API.prediction.zone(null,sp,150,lat,lng);
       else d=await API.prediction.zone(this.currentHarbor.id,sp);
       this.showRecommendation(d);
     }catch(e){
+      if(e.status===401){localStorage.removeItem('lp_user_id');UI.show('screen-login');return;}
       console.warn('loadZone failed',e);
     }
   },
@@ -60,13 +65,11 @@ const UI={
     document.getElementById('db-wave').textContent=wave!=null?`${wave.toFixed(1)} m`:'-';
     document.getElementById('db-wind').textContent=wind!=null?`${Math.round(wind*3.6)} km/h`:'-';
     const badge=document.getElementById('db-badge'),status=document.getElementById('db-status'),text=document.getElementById('db-ktext');
-    if(wind!=null&&wind>15){
-      badge.style.background='#FFEBEE';badge.style.color='#C62828';status.textContent='BAHAYA';text.textContent='Angin kencang. Jangan berlayar.';return;
-    }
+    const safetyMap={'BAHAYA':{bg:'#FFEBEE',fg:'#C62828',txt:'Kondisi berbahaya. Jangan berlayar.'},'WASPADA':{bg:'#FFF3E0',fg:'#E65100',txt:'Kondisi perlu diwaspadai.'},'AMAN':{bg:'#E8F5E9',fg:'#2E7D32',txt:'Aman untuk melaut'}};
+    if(wind!=null&&wind>15){const s=safetyMap['BAHAYA'];badge.style.background=s.bg;badge.style.color=s.fg;status.textContent='BAHAYA';text.textContent='Angin kencang. Jangan berlayar.';return;}
     if(w?.weather_available&&wave!=null){
-      if(wave>2.5){badge.style.background='#FFEBEE';badge.style.color='#C62828';status.textContent='BAHAYA';text.textContent='Kondisi berbahaya. Jangan berlayar.';}
-      else if(wave>1.5){badge.style.background='#FFF3E0';badge.style.color='#E65100';status.textContent='WASPADA';text.textContent='Kondisi perlu diwaspadai.';}
-      else{badge.style.background='#E8F5E9';badge.style.color='#2E7D32';status.textContent='AMAN';text.textContent='Aman untuk melaut';}
+      const key=wave>2.5?'BAHAYA':wave>1.5?'WASPADA':'AMAN';
+      const s=safetyMap[key];badge.style.background=s.bg;badge.style.color=s.fg;status.textContent=key;text.textContent=s.txt;
     }
   },
 
@@ -74,9 +77,9 @@ const UI={
     document.getElementById('db-rekom-dir').textContent=`Arah ${rec.direction||'-'}`;
     document.getElementById('db-rekom-bearing').textContent=`${Math.round(rec.bearing_degrees||0)}°`;
     document.getElementById('db-rekom-dist').textContent=`${Math.round(rec.distance_km||0)} km`;
-    const c=['TINGGI','SEDANG','RENDAH','BAHAYA'][['HIGH','MEDIUM','LOW','UNSAFE'].indexOf(rec.category)];
+    const c=this._catLabel(rec.category);
     document.getElementById('db-rekom-badge').textContent=c||rec.category;
-    const conf=['Tinggi','Sedang','Rendah'][['HIGH','MEDIUM','LOW'].indexOf(rec.category)]||'-';
+    const conf={'HIGH':'Tinggi','MEDIUM':'Sedang','LOW':'Rendah'}[rec.category]||'-';
     document.getElementById('db-rekom-conf').textContent=conf;
     const sst=rec.sst_celsius!=null?`${rec.sst_celsius.toFixed(1)}°C`:'-';
     document.getElementById('db-sst').textContent=sst;
@@ -94,7 +97,7 @@ const UI={
   },
 
   showPetaDetail(zone,dist,bearing,dir){
-    const cat=['TINGGI','SEDANG','RENDAH','BAHAYA'][['HIGH','MEDIUM','LOW','UNSAFE'].indexOf(zone.category)]||zone.category;
+    const cat=this._catLabel(zone.category);
     const badgeEl=document.getElementById('pd-badge');
     const cc={'TINGGI':{bg:'#E8F5E9',fg:'#2E7D32'},'SEDANG':{bg:'#FFF3E0',fg:'#E65100'},'RENDAH':{bg:'#FFF8E1',fg:'#F9A825'},'BAHAYA':{bg:'#FFEBEE',fg:'#C62828'}}[cat]||{bg:'#E8F5E9',fg:'#2E7D32'};
     badgeEl.textContent=cat;
@@ -107,6 +110,7 @@ const UI={
     document.getElementById('pd-sst').textContent=sst;
     const fuel=Math.round((dist||0)*2*0.5);
     document.getElementById('pd-bbm').textContent=`${fuel} L`;
+    document.getElementById('pd-best-time').textContent=zone.reasoning||'Kondisi diperkirakan stabil.';
     const tags=document.getElementById('pd-species');
     tags.innerHTML=`<span class="pd-tag">${UI.currentSpecies||'-'}</span>`;
     this.fetchWeatherForDetail();

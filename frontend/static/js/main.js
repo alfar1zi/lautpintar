@@ -1,3 +1,4 @@
+'use strict';
 (async function(){
   if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 
@@ -70,11 +71,12 @@
 
   document.getElementById('form-login').addEventListener('submit',async e=>{
     e.preventDefault();
+    const btn=e.target.querySelector('.form-submit');if(btn)btn.disabled=true;
     const email=document.getElementById('input-email').value.trim();
     const password=document.getElementById('input-password').value;
     const err=document.getElementById('login-error');
     err.classList.add('hidden');
-    if(!email||!password){err.textContent='Email dan kata sandi wajib diisi.';err.classList.remove('hidden');return;}
+    if(!email||!password){err.textContent='Email dan kata sandi wajib diisi.';err.classList.remove('hidden');if(btn)btn.disabled=false;return;}
     try{
       const user=await API.auth.login(email,password);
       UI.currentUser=user;
@@ -91,17 +93,19 @@
       UI.updateNav('screen-beranda');
       if(UI.currentHarbor||UI.currentCoords)UI.loadZone(UI.currentSpecies);
     }catch(ex){err.textContent=ex.message||'Masuk gagal.';err.classList.remove('hidden');}
+    if(btn)btn.disabled=false;
   });
 
   document.getElementById('form-register').addEventListener('submit',async e=>{
     e.preventDefault();
+    const btn=e.target.querySelector('.form-submit');if(btn)btn.disabled=true;
     const name=document.getElementById('reg-name').value.trim();
     const email=document.getElementById('reg-email').value.trim();
     const password=document.getElementById('reg-password').value;
     const err=document.getElementById('register-error');
     err.classList.add('hidden');
-    if(!name||!email||!password){err.textContent='Semua kolom wajib diisi.';err.classList.remove('hidden');return;}
-    if(password.length<8){err.textContent='Kata sandi minimal 8 karakter.';err.classList.remove('hidden');return;}
+    if(!name||!email||!password){err.textContent='Semua kolom wajib diisi.';err.classList.remove('hidden');if(btn)btn.disabled=false;return;}
+    if(password.length<8){err.textContent='Kata sandi minimal 8 karakter.';err.classList.remove('hidden');if(btn)btn.disabled=false;return;}
     try{
       const user=await API.auth.register({email,password,full_name:name,default_species:'tongkol'});
       UI.currentUser=user;
@@ -114,6 +118,7 @@
       UI.updateNav('screen-beranda');
       if(UI.currentCoords)UI.loadZone(UI.currentSpecies);
     }catch(ex){err.textContent=ex.message||'Daftar gagal.';err.classList.remove('hidden');}
+    if(btn)btn.disabled=false;
   });
 
   // === NAVIGATION - bottom nav stays on peta too
@@ -221,15 +226,16 @@
       caches.open('lautpintar-tiles-v3').then(cache=>{
         const btns=document.getElementById('btn-pt-download');
         btns.innerHTML='<span style="font-size:16px;">...</span>';
+        let ok=0;
         for(let z=8;z<=10;z++){
           for(let x=Math.floor(Math.pow(2,z-2));x<Math.floor(Math.pow(2,z-1));x+=2){
             for(let y=0;y<Math.floor(Math.pow(2,z-2));y+=2){
               const url=`/api/v1/prediction/tile/${z}/${x}/${y}.png?species=${UI.currentSpecies}`;
-              cache.add(url).catch(()=>{});
+              cache.add(url).then(()=>ok++).catch(()=>{});
             }
           }
         }
-        setTimeout(()=>{btns.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';alert('Peta siap offline.');},500);
+        setTimeout(()=>{if(ok>0){btns.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>';alert('Peta siap offline.');}},500);
       });
     }else{alert('Buka halaman ini lewat browser, bukan file lokal.');}
   });

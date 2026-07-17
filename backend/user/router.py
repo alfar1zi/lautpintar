@@ -2,11 +2,12 @@ from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.auth.models import UserResponse
 from backend.auth.service import clear_auth_cookies, get_current_user
 from backend.db.database import get_db
-from backend.db.models import User
+from backend.db.models import Harbor, User
 from backend.prediction.species_config import SPECIES_CONFIG
 
 router = APIRouter()
@@ -25,6 +26,9 @@ async def update_me(body: UpdateUserRequest, current_user: User = Depends(get_cu
     if body.full_name is not None:
         current_user.full_name = body.full_name
     if body.harbor_id is not None:
+        harbor = await db.scalar(select(Harbor).where(Harbor.id == body.harbor_id))
+        if not harbor:
+            raise HTTPException(status_code=404, detail="Pelabuhan tidak ditemukan")
         current_user.harbor_id = body.harbor_id
     if body.default_species is not None:
         if body.default_species not in SPECIES_CONFIG:
