@@ -30,6 +30,15 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="LautPintar API", version="3.3.0", lifespan=lifespan,
               default_response_class=JSONResponse)
 
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import structlog
+    log = structlog.get_logger()
+    log.error("unhandled_exception", path=str(request.url), error=str(exc), exc_info=True)
+    return JSONResponse(status_code=500, content={"detail": "Terjadi kesalahan internal."})
+
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
@@ -56,6 +65,9 @@ app.include_router(feedback_router, prefix="/api/v1/feedback", tags=["feedback"]
 
 from backend.harbor.router import router as harbor_router
 app.include_router(harbor_router, prefix="/api/v1/harbor", tags=["harbor"])
+
+from backend.utils.logger import configure_logging
+configure_logging()
 
 from fastapi.staticfiles import StaticFiles
 

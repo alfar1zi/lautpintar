@@ -1,346 +1,240 @@
-(async function initApp() {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  }
+(async function(){
+  if('serviceWorker'in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 
-  window.addEventListener('online', () => {
-    document.getElementById('offline-banner')?.classList.add('hidden');
-    if (UI.currentHarbor || UI.currentCoords) UI.loadZone(UI.currentSpecies);
-  });
-  window.addEventListener('offline', () => {
-    document.getElementById('offline-banner')?.classList.remove('hidden');
-  });
-  if (!navigator.onLine) {
-    document.getElementById('offline-banner')?.classList.remove('hidden');
-  }
+  // Splash minimum 1.5s
+  await new Promise(r=>setTimeout(r,1500));
+  document.getElementById('screen-splash').classList.remove('screen-active');
 
-  const saved = UI.getSavedState();
-  setTimeout(() => {
-    document.getElementById('screen-loading').classList.remove('screen-active');
-  }, 800);
-
-  if (saved.userId) {
-    try {
-      const user = await API.auth.me();
-      UI.setUser(user);
-      const harborId = user.harbor_id || saved.harborId;
-      if (harborId) {
-        const harbors = await API.harbor.list();
-        UI.currentHarbor = harbors.find(h => h.id === harborId);
-      }
-      UI.currentSpecies = user.default_species || saved.species || 'tongkol';
+  const saved=localStorage.getItem('lp_user_id');
+  if(saved){
+    try{
+      const user=await API.auth.me();
+      UI.currentUser=user;
       UI.setGreeting(user.full_name);
-      UI.show('screen-app');
-      updateBottomNav('screen-app');
-      if (UI.currentHarbor || UI.currentCoords) UI.loadZone(UI.currentSpecies);
-      UI.populateHarborDropdown('settings-harbor');
-    } catch {
-      UI.clearState();
+      if(user.harbor_id){
+        const harbors=await API.harbor.list();
+        UI.currentHarbor=harbors.find(h=>h.id===user.harbor_id);
+      }
+      UI.currentSpecies=user.default_species||'tongkol';
+      UI.show('screen-beranda');
+      if(UI.currentHarbor)UI.loadZone(UI.currentSpecies);
+    }catch(e){
+      localStorage.removeItem('lp_user_id');
       UI.show('screen-onboarding');
     }
-  } else {
+  }else{
     UI.show('screen-onboarding');
-    document.getElementById('onboarding-slide-2')?.classList.add('hidden');
   }
-  UI.populateHarborDropdown('settings-harbor');
 
-  document.getElementById('btn-onboarding-lanjut')?.addEventListener('click', async () => {
-    if (!navigator.geolocation) {
-      document.getElementById('onboarding-slide-1').classList.add('hidden');
-      document.getElementById('onboarding-slide-2').classList.remove('hidden');
-      return;
-    }
-    const loader = document.getElementById('onboarding-slide-loader');
-    if (loader) loader.classList.remove('hidden');
+  // === ONBOARDING ===
+  document.getElementById('btn-ob-next').addEventListener('click',()=>{
+    UI.show('screen-gps');
+  });
+
+  // === GPS ===
+  document.getElementById('btn-gps-allow').addEventListener('click',()=>{
+    if(!navigator.geolocation){UI.show('screen-login');return;}
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        UI.currentCoords = { lat: position.coords.latitude, lng: position.coords.longitude };
-        try {
-          const nearest = await API.harbor.nearest(UI.currentCoords.lat, UI.currentCoords.lng);
-          UI.nearestHarborContext = `${nearest.distance_km}km dari ${nearest.name}`;
-        } catch {}
-        if (loader) loader.classList.add('hidden');
-        document.getElementById('onboarding-slide-1').classList.add('hidden');
-        document.getElementById('onboarding-slide-2').classList.remove('hidden');
-      },
-      () => {
-        if (loader) loader.classList.add('hidden');
-        document.getElementById('onboarding-slide-1').classList.add('hidden');
-        document.getElementById('onboarding-slide-2').classList.remove('hidden');
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+      p=>{UI.currentCoords={lat:p.coords.latitude,lng:p.coords.longitude};UI.show('screen-login');},
+      ()=>{UI.show('screen-login');},
+      {enableHighAccuracy:true,timeout:15000,maximumAge:60000}
     );
   });
+  document.getElementById('btn-gps-skip').addEventListener('click',()=>UI.show('screen-login'));
 
-  document.getElementById('link-skip-gps')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('onboarding-slide-1').classList.add('hidden');
-    document.getElementById('onboarding-slide-2').classList.remove('hidden');
+  // === LOGIN ===
+  document.getElementById('btn-show-login-form').addEventListener('click',()=>{
+    document.getElementById('login-form-overlay').classList.add('open');
   });
-
-  document.getElementById('form-login')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('input-email').value.trim();
-    const password = document.getElementById('input-password').value;
-    const errEl = document.getElementById('login-error');
-    errEl.classList.add('hidden');
-    if (!email || !password) { errEl.textContent = 'Email dan password wajib diisi.'; errEl.classList.remove('hidden'); return; }
-    const btn = document.getElementById('btn-login');
-    btn.disabled = true;
-    try {
-      const user = await API.auth.login(email, password);
-      UI.setUser(user);
-      if (user.harbor_id) {
-        const harbors = await API.harbor.list();
-        UI.currentHarbor = harbors.find(h => h.id === user.harbor_id);
-      }
-      UI.currentSpecies = user.default_species || 'tongkol';
-      UI.setGreeting(user.full_name);
-      UI.show('screen-app');
-      updateBottomNav('screen-app');
-      if (UI.currentCoords || UI.currentHarbor) UI.loadZone(UI.currentSpecies);
-    } catch (err) {
-      errEl.textContent = err.message || 'Email atau password salah.';
-      errEl.classList.remove('hidden');
-      btn.disabled = false;
-    }
+  document.getElementById('login-form-overlay').addEventListener('click',e=>{
+    if(e.target===document.getElementById('login-form-overlay'))
+      document.getElementById('login-form-overlay').classList.remove('open');
   });
-
-  document.getElementById('form-register')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('reg-name').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const password = document.getElementById('reg-password').value;
-    const species = document.getElementById('reg-species').value;
-    const errEl = document.getElementById('register-error');
-    errEl.classList.add('hidden');
-    if (!name || !email || !password) { errEl.textContent = 'Semua field wajib diisi.'; errEl.classList.remove('hidden'); return; }
-    try {
-      const user = await API.auth.register({ email, password, full_name: name, default_species: species });
-      UI.setUser(user);
-      UI.currentSpecies = species || 'tongkol';
-      UI.setGreeting(user.full_name);
-      UI.show('screen-app');
-      updateBottomNav('screen-app');
-    } catch (err) {
-      errEl.textContent = err.message || 'Pendaftaran gagal.';
-      errEl.classList.remove('hidden');
-    }
-  });
-
-  document.getElementById('link-to-register')?.addEventListener('click', (e) => {
+  document.getElementById('link-to-register').addEventListener('click',e=>{
     e.preventDefault();
     document.getElementById('form-login').classList.add('hidden');
     document.getElementById('form-register').classList.remove('hidden');
   });
-  document.getElementById('link-to-login')?.addEventListener('click', (e) => {
+  document.getElementById('link-to-login-form').addEventListener('click',e=>{
     e.preventDefault();
     document.getElementById('form-register').classList.add('hidden');
     document.getElementById('form-login').classList.remove('hidden');
   });
 
-  document.querySelectorAll('.bottom-nav-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const target = item.dataset.screen;
-      if (target === 'screen-peta') {
-        MAP.init('map-peta');
-        UI.show('screen-peta');
-        updateBottomNav('screen-peta');
-        MAP.refreshSize();
+  document.getElementById('form-login').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const email=document.getElementById('input-email').value.trim();
+    const password=document.getElementById('input-password').value;
+    const err=document.getElementById('login-error');
+    err.classList.add('hidden');
+    if(!email||!password){err.textContent='Email dan kata sandi wajib diisi.';err.classList.remove('hidden');return;}
+    try{
+      const user=await API.auth.login(email,password);
+      UI.currentUser=user;
+      localStorage.setItem('lp_user_id',user.id);
+      UI.setGreeting(user.full_name);
+      if(user.harbor_id){
+        const harbors=await API.harbor.list();
+        UI.currentHarbor=harbors.find(h=>h.id===user.harbor_id);
+      }
+      UI.currentSpecies=user.default_species||'tongkol';
+      document.getElementById('login-form-overlay').classList.remove('open');
+      UI.show('screen-beranda');
+      UI.updateNav('screen-beranda');
+      if(UI.currentHarbor||UI.currentCoords)UI.loadZone(UI.currentSpecies);
+    }catch(ex){err.textContent=ex.message||'Login gagal.';err.classList.remove('hidden');}
+  });
+
+  document.getElementById('form-register').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const name=document.getElementById('reg-name').value.trim();
+    const email=document.getElementById('reg-email').value.trim();
+    const password=document.getElementById('reg-password').value;
+    const species=document.getElementById('reg-species').value;
+    const err=document.getElementById('register-error');
+    err.classList.add('hidden');
+    if(!name||!email||!password){err.textContent='Semua field wajib diisi.';err.classList.remove('hidden');return;}
+    if(password.length<8){err.textContent='Kata sandi minimal 8 karakter.';err.classList.remove('hidden');return;}
+    try{
+      const user=await API.auth.register({email,password,full_name:name,default_species:species});
+      UI.currentUser=user;
+      localStorage.setItem('lp_user_id',user.id);
+      UI.setGreeting(user.full_name);
+      UI.currentSpecies=species||'tongkol';
+      document.getElementById('login-form-overlay').classList.remove('open');
+      UI.show('screen-beranda');
+      UI.updateNav('screen-beranda');
+      if(UI.currentCoords)UI.loadZone(UI.currentSpecies);
+    }catch(ex){err.textContent=ex.message||'Pendaftaran gagal.';err.classList.remove('hidden');}
+  });
+
+  // === NAVIGATION ===
+  document.querySelectorAll('.db-nav').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const target=btn.dataset.goto;
+      if(target==='screen-riwayat')UI.loadRiwayat();
+      if(target==='screen-akun'){
+        document.getElementById('ak-nama').textContent=UI.currentUser?.full_name||'Nelayan';
+        UI.show('screen-akun');
+        UI.updateNav('screen-akun');
         return;
       }
-      if (target === 'screen-riwayat') UI.loadRiwayat();
-      if (target === 'screen-settings') populateSettings();
+      if(target==='screen-peta'){
+        UI.show('screen-peta');
+        UI.updateNav('screen-peta');
+        initPetaMap();
+        return;
+      }
       UI.show(target);
-      updateBottomNav(target);
+      UI.updateNav(target);
     });
   });
 
-  document.getElementById('btn-peta-gps')?.addEventListener('click', () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        UI.currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        UI.currentHarbor = null;
-        MAP.flyToHarbor(UI.currentCoords.lat, UI.currentCoords.lng);
-        await UI.loadZone(UI.currentSpecies);
-      },
-      () => {},
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
+  // === DASHBOARD ===
+  document.getElementById('btn-db-lihat-cuaca').addEventListener('click',()=>{
+    alert('Cuaca detail - data dari Open-Meteo');
   });
-
-  document.getElementById('btn-bd-aktifkan-gps')?.addEventListener('click', () => {
-    if (navigator.geolocation) {
+  document.getElementById('btn-db-lihat-semua').addEventListener('click',()=>{
+    UI.show('screen-peta');
+    UI.updateNav('screen-peta');
+    initPetaMap();
+  });
+  document.getElementById('btn-db-cek-detail').addEventListener('click',()=>{
+    const rec=UI.getTopRec();
+    if(rec)UI.showPetaDetail(rec,rec.distance_km,rec.bearing_degrees,rec.direction);
+  });
+  document.getElementById('btn-db-navigate').addEventListener('click',()=>{
+    const rec=UI.getTopRec();
+    if(rec){navigateToZone(rec);}
+  });
+  document.getElementById('btn-db-pilih-lokasi')?.addEventListener('click',()=>{
+    UI.show('screen-akun');
+    UI.updateNav('screen-akun');
+  });
+  document.getElementById('btn-db-aktifkan-gps')?.addEventListener('click',()=>{
+    if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          UI.currentCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-          UI.currentHarbor = null;
-          await UI.loadZone(UI.currentSpecies);
-        },
-        () => { alert('Izin lokasi ditolak.'); }
+        p=>{UI.currentCoords={lat:p.coords.latitude,lng:p.coords.longitude};UI.loadZone(UI.currentSpecies);},
+        ()=>{alert('Izin lokasi ditolak.');}
       );
     }
   });
 
-  document.getElementById('btn-bd-pilih-pelabuhan')?.addEventListener('click', () => {
-    populateSettings();
-    UI.show('screen-settings');
-    updateBottomNav('screen-settings');
+  // === PETA ===
+  document.getElementById('btn-pt-detail').addEventListener('click',()=>{
+    const rec=UI.getTopRec();
+    if(rec)UI.showPetaDetail(rec,rec.distance_km,rec.bearing_degrees,rec.direction);
+  });
+  document.getElementById('btn-pt-akun').addEventListener('click',()=>{
+    document.getElementById('ak-nama').textContent=UI.currentUser?.full_name||'Nelayan';
+    UI.show('screen-akun');
+    UI.updateNav('screen-akun');
   });
 
-  document.getElementById('btn-bd-navigate')?.addEventListener('click', () => {
-    const zone = UI.getTopRecommendation();
-    if (zone) UI.navigateToZoneOnMap(zone, zone.distance_km || 0, zone.bearing_degrees || 0, zone.direction || 'Utara');
+  // === PETA DETAIL ===
+  document.getElementById('btn-pd-back').addEventListener('click',()=>{
+    UI.show('screen-peta');
+    UI.updateNav('screen-peta');
+  });
+  document.getElementById('btn-pd-navigate').addEventListener('click',()=>{
+    const rec=UI.getTopRec();
+    if(rec)navigateToZone(rec);
   });
 
-  document.getElementById('btn-bd-cek-detail')?.addEventListener('click', () => {
-    const zone = UI.getTopRecommendation();
-    if (zone) UI.showDetailLokasi(zone, zone.distance_km || 0, zone.bearing_degrees || 0, zone.direction || 'Utara');
+  // === NAVIGASI ===
+  document.getElementById('btn-nv-mulai').addEventListener('click',()=>{
+    alert('Navigasi dimulai. Ikuti arah kompas.');
   });
 
-  document.getElementById('btn-back-settings')?.addEventListener('click', () => {
-    UI.show('screen-app');
-    updateBottomNav('screen-app');
+  // === RIWAYAT ===
+  document.querySelectorAll('[data-rwf]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('[data-rwf]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      UI.loadRiwayat();
+    });
   });
 
-  document.getElementById('btn-back-peta')?.addEventListener('click', () => {
-    UI.show('screen-app');
-    updateBottomNav('screen-app');
-  });
-
-  document.getElementById('btn-logout')?.addEventListener('click', async () => {
-    try { await API.auth.logout(); } catch {}
-    UI.clearState();
+  // === AKUN ===
+  document.getElementById('btn-ak-cuaca').addEventListener('click',()=>alert('Cuaca & Kondisi - data dari Open-Meteo'));
+  document.getElementById('btn-ak-bantuan')?.addEventListener('click',()=>alert('FAQ: LautPintar menggunakan data satelit NASA, CMEMS, dan GEBCO untuk prediksi zona tangkap.'));
+  document.getElementById('btn-ak-logout').addEventListener('click',async()=>{
+    try{await API.auth.logout();}catch(e){}
+    localStorage.removeItem('lp_user_id');
+    UI.currentUser=null;UI.currentHarbor=null;UI.currentCoords=null;
     UI.show('screen-onboarding');
-    updateBottomNav('screen-onboarding');
   });
 
-  document.querySelectorAll('.species-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const species = btn.dataset.species;
-      document.querySelectorAll('.species-btn').forEach(b => { b.classList.toggle('active', b.dataset.species === species); });
-      UI.currentSpecies = species;
-      localStorage.setItem('lp_species', species);
-      if (UI.currentHarbor || UI.currentCoords) UI.loadZone(species);
-    });
-  });
-
-  document.getElementById('btn-save-settings')?.addEventListener('click', async () => {
-    const btn = document.getElementById('btn-save-settings');
-    btn.disabled = true;
-    try {
-      const data = {};
-      const name = document.getElementById('settings-name').value.trim();
-      if (name) data.full_name = name;
-      const harborId = document.getElementById('settings-harbor').value;
-      if (harborId) data.harbor_id = harborId;
-      data.default_species = document.getElementById('settings-species').value;
-      const user = await API.auth.update(data);
-      UI.setUser(user);
-      btn.disabled = false;
-      alert('Profil tersimpan.');
-    } catch (err) {
-      btn.disabled = false;
-      alert(err.message || 'Gagal menyimpan.');
+  // === MAPS ===
+  let petaMap=null,navMap=null;
+  window.initPetaMap=function(){
+    const container=document.getElementById('pt-map');
+    if(!container)return;
+    if(petaMap){petaMap.invalidateSize();return;}
+    petaMap=L.map(container,{center:[-2.5,117.5],zoom:5,zoomControl:false,attributionControl:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:4,opacity:0.7}).addTo(petaMap);
+    L.control.zoom({position:'topleft'}).addTo(petaMap);
+    setTimeout(()=>petaMap.invalidateSize(),200);
+    const rec=UI.getTopRec();
+    if(rec&&UI.instance){
+      L.marker([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng]).addTo(petaMap).bindPopup('Zona Rekomendasi');
+      petaMap.flyTo([rec.zone_lat||rec.lat,rec.zone_lng||rec.lng],8,{duration:1});
     }
-  });
+  };
 
-  document.getElementById('btn-menu-cuaca')?.addEventListener('click', () => {
-    UI.showCuacaScreen();
-    UI.show('screen-cuaca');
-  });
-
-  document.getElementById('btn-menu-bantuan')?.addEventListener('click', () => {
-    UI.show('screen-bantuan');
-  });
-
-  document.getElementById('btn-back-cuaca')?.addEventListener('click', () => {
-    UI.show('screen-app');
-    updateBottomNav('screen-app');
-  });
-
-  document.getElementById('btn-back-bantuan')?.addEventListener('click', () => {
-    UI.show('screen-app');
-    updateBottomNav('screen-app');
-  });
-
-  document.getElementById('btn-back-notifikasi')?.addEventListener('click', () => {
-    UI.show('screen-app');
-    updateBottomNav('screen-app');
-  });
-
-  document.getElementById('btn-riwayat-beranda')?.addEventListener('click', () => {
-    UI.show('screen-app');
-    updateBottomNav('screen-app');
-  });
-
-  document.getElementById('btn-navigate-detail')?.addEventListener('click', () => {
-    const zone = UI.detailZoneData;
-    if (zone) UI.navigateToZoneOnMap(zone, zone.distance_km, zone.bearing_degrees, zone.direction);
-  });
-
-  document.getElementById('btn-back-detail')?.addEventListener('click', () => {
-    UI.show('screen-peta');
-    updateBottomNav('screen-peta');
-  });
-
-  document.getElementById('btn-peta-retry')?.addEventListener('click', () => {
-    if ((UI.currentHarbor || UI.currentCoords) && UI.currentSpecies) UI.loadZone(UI.currentSpecies);
-  });
-
-  document.getElementById('btn-peta-refresh')?.addEventListener('click', () => {
-    if ((UI.currentHarbor || UI.currentCoords) && UI.currentSpecies) UI.loadZone(UI.currentSpecies);
-  });
-
-  document.getElementById('btn-bd-lihat-semua')?.addEventListener('click', () => {
-    MAP.init('map-peta');
-    UI.show('screen-peta');
-    updateBottomNav('screen-peta');
-  });
-
-  document.getElementById('btn-bd-weather-detail')?.addEventListener('click', () => {
-    UI.showCuacaScreen();
-    UI.show('screen-cuaca');
-  });
+  window.navigateToZone=function(rec){
+    const lat=rec.zone_lat||rec.lat,lng=rec.zone_lng||rec.lng;
+    document.getElementById('nv-jarak').textContent=`${Math.round(rec.distance_km||0)} km`;
+    document.getElementById('nv-waktu').textContent=`${Math.max(1,Math.round((rec.distance_km||0)/15))} menit`;
+    UI.show('screen-navigasi');
+    setTimeout(()=>{
+      const container=document.getElementById('nv-map');
+      if(!container)return;
+      if(navMap){navMap.invalidateSize();return;}
+      navMap=L.map(container,{center:[lat,lng],zoom:9,zoomControl:false,attributionControl:false});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:12,minZoom:4,opacity:0.7}).addTo(navMap);
+      L.marker([lat,lng]).addTo(navMap).bindPopup('Zona Rekomendasi');
+      setTimeout(()=>navMap.invalidateSize(),200);
+    },100);
+  };
 })();
-
-function updateBottomNav(screenId) {
-  const nav = document.getElementById('bottom-nav');
-  const mainScreens = ['screen-app', 'screen-peta', 'screen-riwayat', 'screen-settings'];
-  nav.classList.toggle('hidden', !mainScreens.includes(screenId));
-  document.querySelectorAll('.bottom-nav-item').forEach(item => {
-    const isActive = item.dataset.screen === screenId;
-    item.classList.toggle('active', isActive);
-  });
-}
-
-async function populateSettings() {
-  document.getElementById('settings-name').value = UI.currentUser?.full_name || '';
-  const harborSelect = document.getElementById('settings-harbor');
-  try {
-    const harbors = await API.harbor.list();
-    harborSelect.innerHTML = '<option value="">-- Pilih Pelabuhan --</option>';
-    harbors.forEach(h => {
-      const opt = document.createElement('option');
-      opt.value = h.id;
-      opt.textContent = `${h.name} (${h.province})`;
-      if (h.id === UI.currentUser?.harbor_id) opt.selected = true;
-      harborSelect.appendChild(opt);
-    });
-  } catch { harborSelect.innerHTML = '<option value="">Gagal memuat</option>'; }
-}
-
-UI.populateHarborDropdown = async function(selectId) {
-  const select = document.getElementById(selectId);
-  try {
-    const harbors = await API.harbor.list();
-    select.innerHTML = '<option value="">-- Pilih pelabuhan --</option>';
-    harbors.forEach(h => {
-      const opt = document.createElement('option');
-      opt.value = h.id;
-      opt.textContent = `${h.name} (${h.province})`;
-      select.appendChild(opt);
-    });
-  } catch { select.innerHTML = '<option value="">Gagal memuat</option>'; }
-};

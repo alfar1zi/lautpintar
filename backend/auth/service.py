@@ -39,6 +39,9 @@ def set_refresh_cookie(response: Response, refresh_token: str) -> None:
     response.set_cookie(key=REFRESH_COOKIE, value=refresh_token,
                         httponly=True, secure=False, samesite="lax", max_age=max_age)
 
+def refresh_token_expires_at() -> datetime:
+    return datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS)
+
 def clear_auth_cookies(response: Response) -> None:
     response.delete_cookie(key=ACCESS_COOKIE, httponly=True, samesite="lax")
     response.delete_cookie(key=REFRESH_COOKIE, httponly=True, samesite="lax")

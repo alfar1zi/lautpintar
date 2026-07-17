@@ -3,255 +3,201 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#1662A7">
-  <meta name="description" content="Prediksi zona tangkap ikan untuk nelayan Indonesia">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1976D2">
   <title>LautPintar</title>
   <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/logo-default.png">
+  <link rel="apple-touch-icon" href="/static/icons/logo-default.png">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="/static/css/variables.css">
-  <link rel="stylesheet" href="/static/css/reset.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
 
-<div id="screen-loading" class="screen screen-active">
-  <div class="splash-bg">
-    <div class="splash-content">
-      <h1 class="splash-title">LautPintar</h1>
+<!-- SPLASH SCREEN -->
+<div id="screen-splash" class="screen screen-active">
+  <div class="splash-contain">
+    <div class="splash-body">
+      <img src="/static/icons/logo-putih.png" class="splash-img">
+      <span class="splash-text">LautPintar</span>
     </div>
   </div>
 </div>
 
+<!-- ONBOARDING -->
 <div id="screen-onboarding" class="screen">
-  <div id="onboarding-slide-1" class="onboarding-slide">
-    <div class="onboarding-white-bg">
-      <div class="onboarding-body">
-        <h1 class="onboarding-title">Temukan lokasi ikan terbaik dengan data satelit</h1>
-        <p class="onboarding-desc">LautPintar pakai AI buat kasih zona tangkap terdekat dan kondisi cuaca.</p>
-      </div>
-      <div class="onboarding-action">
-        <button id="btn-onboarding-lanjut" class="onboarding-btn-white">Lanjut</button>
-        <p class="onboarding-skip"><a href="#" id="link-skip-gps">Lewati</a></p>
-      </div>
+  <div class="ob-page">
+    <img src="/static/icons/logo-onboarding.png" class="ob-hero">
+    <div class="ob-content">
+      <span class="ob-title">Temukan lokasi ikan terbaik dengan data dan AI</span>
+      <button id="btn-ob-next" class="ob-btn">Lanjut</button>
+      <div class="ob-dots"><span class="ob-dot active"></span><span class="ob-dot"></span></div>
     </div>
   </div>
+</div>
 
-  <div id="onboarding-slide-2" class="onboarding-slide hidden">
-    <div class="onboarding-bg">
-      <div class="onboarding-body">
-        <h1 class="onboarding-title" style="font-size:20px;">Selamat Datang di LautPintar</h1>
+<!-- GPS PERMISSION -->
+<div id="screen-gps" class="screen">
+  <div class="gps-page">
+    <img src="/static/icons/ui/gps.png" class="gps-icon-big">
+    <span class="gps-title">Izinkan akses lokasi</span>
+    <span class="gps-desc">Kami menggunakan ini untuk menunjukkan lokasi ikan terbaik di sekitar Anda. Anda dapat mengatur akses ini di pengaturan ponsel Anda.</span>
+    <span class="gps-note">Dengan memberikan akses, Anda setuju untuk membagikan info lokasi Anda sesuai dengan Kebijakan Privasi kami.</span>
+    <button id="btn-gps-allow" class="gps-allow-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg> Izinkan Lokasi</button>
+    <button id="btn-gps-skip" class="gps-skip-btn">Nanti Saja</button>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen">
+  <div class="login-page">
+    <img src="/static/icons/logo-default.png" class="login-hero">
+    <span class="login-title">Selamat Datang di LautPintar</span>
+    <span class="login-sub">Masuk untuk melanjutkan</span>
+    <button id="btn-show-login-form" class="login-email-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4l-10 8L2 4"/></svg> Masuk dengan Email</button>
+    <span class="login-footer">Belum punya akun? <a href="#" id="link-to-register">Daftar di sini</a></span>
+  </div>
+  <div id="login-form-overlay" class="form-overlay hidden">
+    <div class="form-sheet">
+      <div class="form-bar"></div>
+      <form id="form-login">
+        <input type="email" id="input-email" placeholder="Email" autocomplete="email" required>
+        <input type="password" id="input-password" placeholder="Kata Sandi" autocomplete="current-password" required>
+        <div id="login-error" class="form-error hidden"></div>
+        <button type="submit" class="form-submit">Masuk</button>
+      </form>
+      <form id="form-register" class="hidden">
+        <input type="text" id="reg-name" placeholder="Nama Lengkap" required>
+        <input type="email" id="reg-email" placeholder="Email" required>
+        <input type="password" id="reg-password" placeholder="Kata Sandi (min 8)" autocomplete="new-password" required>
+        <select id="reg-species">
+          <option value="tongkol">Tongkol</option><option value="cakalang">Cakalang</option><option value="tuna_sirip_kuning">Tuna Sirip Kuning</option>
+          <option value="kembung">Kembung</option><option value="teri">Teri</option><option value="layang">Layang</option><option value="lemuru">Lemuru</option>
+        </select>
+        <div id="register-error" class="form-error hidden"></div>
+        <button type="submit" class="form-submit">Daftar</button>
+      </form>
+      <span class="form-toggle"><a href="#" id="link-to-login-form">Sudah punya akun? Masuk</a></span>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="screen-beranda" class="screen">
+  <div class="db-page">
+    <div class="db-topbar"><span class="db-greeting">Hai, Nelayan!</span>
+      <div><button id="btn-db-notif" class="db-icn"><img src="/static/icons/ui/beranda.png" width="24" height="24"></button>
+      <button id="btn-db-akun" class="db-icn"><img src="/static/icons/ui/akun.png" width="24" height="24"></button></div>
+    </div>
+    <div class="db-scroll">
+      <div id="db-nodata" class="db-nodata">
+        <img src="/static/icons/ui/gps.png" width="48" height="48">
+        <span class="db-nodata-title">Belum Ada Lokasi</span>
+        <span class="db-nodata-desc">Pilih pelabuhan atau aktifkan GPS untuk melihat prediksi.</span>
+        <button id="btn-db-pilih-lokasi" class="db-btn2">Pilih Pelabuhan</button>
+        <button id="btn-db-aktifkan-gps" class="db-btn1">Aktifkan GPS</button>
       </div>
-      <div class="onboarding-action" style="padding-top:0">
-        <form id="form-login" class="auth-form">
-          <div class="form-group"><input type="email" id="input-email" placeholder="Email" required></div>
-          <div class="form-group"><input type="password" id="input-password" placeholder="Kata Sandi" required minlength="8"></div>
-          <div id="login-error" class="form-error hidden"></div>
-          <button id="btn-login" class="auth-btn" type="submit">Masuk</button>
-          <p class="auth-footer">Belum punya akun? <a href="#" id="link-to-register">Daftar</a></p>
-        </form>
-        <form id="form-register" class="auth-form hidden">
-          <div class="form-group"><input type="text" id="reg-name" placeholder="Nama Lengkap" required></div>
-          <div class="form-group"><input type="email" id="reg-email" placeholder="Email" required></div>
-          <div class="form-group"><input type="password" id="reg-password" placeholder="Kata Sandi" required minlength="8"></div>
-          <div class="form-group">
-            <select id="reg-species">
-              <option value="tongkol">Tongkol</option>
-              <option value="cakalang">Cakalang</option>
-              <option value="tuna_sirip_kuning">Tuna Sirip Kuning</option>
-              <option value="kembung">Kembung</option>
-              <option value="teri">Teri</option>
-              <option value="layang">Layang</option>
-              <option value="lemuru">Lemuru</option>
-            </select>
+      <div id="db-kondisi" class="db-hide">
+        <span class="db-sectitle">Kondisi Hari Ini</span>
+        <div class="db-card-w">
+          <span class="db-aman" id="db-badge"><span id="db-status">AMAN</span></span>
+          <span class="db-clabel">Kondisi hari ini</span>
+          <span class="db-ctext" id="db-ktext">Aman untuk melaut</span>
+          <div class="db-mgrid">
+            <div class="db-mcard"><img src="/static/icons/ui/wave.png" width="24" height="24"><span id="db-wave" class="db-mval">-</span><span class="db-mlabel">Gelombang</span></div>
+            <div class="db-mcard"><img src="/static/icons/ui/wind.png" width="24" height="24"><span id="db-wind" class="db-mval">-</span><span class="db-mlabel">Angin</span></div>
+            <div class="db-mcard"><img src="/static/icons/ui/thermometer.png" width="24" height="24"><span id="db-sst" class="db-mval">-</span><span class="db-mlabel">Suhu Air</span></div>
           </div>
-          <div id="register-error" class="form-error hidden"></div>
-          <button id="btn-register" class="auth-btn" type="submit">Daftar</button>
-          <p class="auth-footer">Sudah punya akun? <a href="#" id="link-to-login">Masuk</a></p>
-        </form>
+          <button id="btn-db-lihat-cuaca" class="db-link">Lihat detail cuaca</button>
+        </div>
       </div>
+      <div id="db-rekom" class="db-hide">
+        <div class="db-shdr"><span class="db-sectitle">Rekomendasi Lokasi</span><button id="btn-db-lihat-semua" class="db-linksm">Lihat semua &gt;</button></div>
+        <div class="db-rekom-card">
+          <div class="db-rekom-banner"><span class="db-rekom-badge" id="db-rekom-badge">TINGGI</span><svg width="32" height="32" viewBox="0 0 24 24" fill="#1976D2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+          <div class="db-rekom-footer"><div><span id="db-rekom-dir" class="db-rdir">-</span><span id="db-rekom-bearing" class="db-rbearing">-</span></div><div><span id="db-rekom-dist" class="db-rdist">-</span><span class="db-rlabel">dari lokasi</span></div></div>
+          <button id="btn-db-cek-detail" class="db-btn2">Cek Detail Lokasi</button>
+          <div class="db-rconf"><span>Tingkat Keyakinan</span><span id="db-rekom-conf" class="db-rconfval">-</span></div>
+        </div>
+      </div>
+      <div id="db-forecast" class="db-hide">
+        <div class="db-shdr"><span class="db-sectitle">Prakiraan 24 Jam</span></div>
+        <div id="db-fc-scroll" class="db-fc-scroll"></div>
+      </div>
+      <div id="db-nav-btn" class="db-hide"><button id="btn-db-navigate" class="db-btn1">Mulai Navigasi</button></div>
     </div>
+    <nav class="db-navbar"><button class="db-nav active" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png"><span>Peta</span></button><button class="db-nav" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png"><span>Riwayat</span></button><button class="db-nav" data-goto="screen-akun"><img src="/static/icons/ui/akun.png"><span>Akun</span></button></nav>
   </div>
 </div>
 
-<div id="screen-app" class="screen screen-beranda">
-  <div id="offline-banner" class="offline-banner hidden">
-    <span>Offline - menampilkan data terakhir tersimpan</span>
-  </div>
-  <header class="bd-header">
-    <h1 class="bd-greeting">Hai, Nelayan!</h1>
-  </header>
-  <div class="bd-scroll">
-    <div id="bd-nodata">
-      <div class="bd-nodata-card">
-        <h3 class="bd-nodata-title">Belum Ada Lokasi</h3>
-        <p class="bd-nodata-desc">Pilih pelabuhan atau aktifkan GPS.</p>
-        <button id="btn-bd-pilih-pelabuhan" class="bd-btn-outline">Pilih Pelabuhan</button>
-        <button id="btn-bd-aktifkan-gps" class="bd-btn-primary">Aktifkan GPS</button>
-      </div>
-    </div>
-    <section class="bd-section hidden">
-      <h2>Rekomendasi Lokasi</h2>
-      <div id="bd-rekom-card">
-        <span id="bd-rekom-category">TINGGI</span>
-        <p id="bd-rekom-direction">-</p>
-        <p id="bd-rekom-distance">-</p>
-        <button id="btn-bd-cek-detail" class="bd-btn-outline">Cek Detail</button>
-        <button id="btn-bd-navigate" class="bd-btn-primary">Mulai Navigasi</button>
-      </div>
-    </section>
-  </div>
-</div>
-
+<!-- PETA -->
 <div id="screen-peta" class="screen">
-  <div class="peta-header">
-    <h1>Peta Lokasi Ikan</h1>
-  </div>
-  <div class="peta-map" id="map-peta"></div>
-  <button id="btn-peta-gps" class="peta-gps-btn">GPS</button>
-  <div id="peta-species" class="peta-species">
-    <button class="species-btn active" data-species="tongkol">Tongkol</button>
-    <button class="species-btn" data-species="cakalang">Cakalang</button>
-    <button class="species-btn" data-species="tuna_sirip_kuning">Tuna</button>
-    <button class="species-btn" data-species="kembung">Kembung</button>
-    <button class="species-btn" data-species="teri">Teri</button>
-    <button class="species-btn" data-species="layang">Layang</button>
-    <button class="species-btn" data-species="lemuru">Lemuru</button>
-  </div>
-  <div id="peta-sheet" class="bottom-sheet">
-    <button class="bottom-sheet-handle"></button>
-    <div id="peta-sheet-loading" class="sheet-state hidden">
-      <div class="sheet-spinner"></div>
-      <p>Memuat prediksi...</p>
-    </div>
-    <div id="peta-sheet-nodata" class="sheet-state">
-      <p>Prediksi Belum Tersedia</p>
-      <button id="btn-peta-refresh" class="btn-secondary">Muat Ulang</button>
-    </div>
-    <div id="peta-sheet-recommendation" class="sheet-state hidden">
-      <p id="peta-rec-text">TINGGI</p>
-      <p id="peta-rec-dir">-</p>
-      <p id="peta-rec-km">- km</p>
-      <p id="peta-rec-summary">-</p>
-    </div>
-    <div id="peta-sheet-error" class="sheet-state hidden">
-      <p id="peta-error-text">Terjadi kesalahan.</p>
-      <button id="btn-peta-retry" class="btn-secondary">Coba Lagi</button>
-    </div>
+  <div class="pt-top"><span class="pt-title">Peta Lokasi Ikan</span><button id="btn-pt-akun" class="pt-icn"><img src="/static/icons/ui/akun.png" width="20" height="20"></button></div>
+  <div id="pt-map" class="pt-map"></div>
+  <div class="pt-sheet">
+    <div class="pt-handle"></div>
+    <div class="pt-shdr"><span class="pt-shtitle">Lokasi Terbaik</span><span id="pt-update" class="pt-update">Update -</span></div>
+    <div class="pt-stats"><div><span id="pt-dist" class="pt-statnum">-</span><span class="pt-statlabel">km</span></div><div><span id="pt-time" class="pt-statnum">-</span><span class="pt-statlabel">menit</span></div></div>
+    <div class="pt-coord"><span id="pt-coord">-</span></div>
+    <button id="btn-pt-detail" class="db-btn2">Lihat Detail</button>
   </div>
 </div>
 
-<div id="screen-detail-lokasi" class="screen">
-  <div class="dl-header">
-    <button id="btn-back-detail" class="btn-back">Kembali</button>
-    <h2>Detail Lokasi</h2>
-  </div>
-  <div class="dl-content">
-    <div id="dl-map-mini" class="dl-map-mini"></div>
-    <div class="dl-section">
-      <div id="dl-category-badge" class="category-badge category-high">
-        <span id="dl-category-text">TINGGI</span>
-      </div>
-      <p id="dl-coord-text">-</p>
+<!-- PETA DETAIL -->
+<div id="screen-peta-detail" class="screen">
+  <div class="pd-top"><button id="btn-pd-back" class="pd-back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><span class="pd-title">Detail Lokasi</span></div>
+  <div class="pd-body">
+    <div class="pd-badge-row"><span class="pd-badge" id="pd-badge">TINGGI</span><span class="pd-conf">Tingkat Keyakinan</span></div>
+    <div class="pd-coord"><span id="pd-coord-text" class="pd-coord-val">-</span><span class="pd-coord-label">Koordinat</span></div>
+    <div class="pd-info"><span id="pd-depth">Estimasi Kedalaman: 120 m</span></div>
+    <div class="pd-info"><span id="pd-time">-</span></div>
+    <div class="pd-section"><span class="pd-sectitle">JENIS IKAN TERDETEKSI</span><div id="pd-species" class="pd-tags"></div></div>
+    <div class="pd-section"><span class="pd-sectitle">KONDISI PERAIRAN</span>
+      <div class="pd-grid"><div><span id="pd-sst" class="pd-sval">-</span><span class="pd-slabel">Suhu Air</span></div><div><span id="pd-wave" class="pd-sval">-</span><span class="pd-slabel">Gelombang</span></div><div><span id="pd-wind" class="pd-sval">-</span><span class="pd-slabel">Angin</span></div><div><span id="pd-bbm" class="pd-sval">-</span><span class="pd-slabel">Estimasi BBM</span></div></div>
     </div>
-    <div class="dl-section">
-      <h3>Kondisi Perairan</h3>
-      <p id="dl-sst">-</p>
+    <div class="pd-section"><span class="pd-sectitle">WAKTU TERBAIK</span>
+      <div class="pd-timecard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div><strong>Waktu Terbaik</strong><p id="pd-best-time">Kondisi stabil hingga 6 jam ke depan.</p></div></div>
     </div>
-    <div class="dl-section">
-      <h3>Estimasi BBM</h3>
-      <p id="dl-fuel-total">-</p>
-    </div>
-  </div>
-  <div class="dl-action-bar">
-    <button id="btn-navigate-detail" class="bd-btn-primary">Arahkan Saya</button>
+    <button id="btn-pd-navigate" class="db-btn1">Arahkan Saya</button>
   </div>
 </div>
 
-<div id="screen-cuaca" class="screen">
-  <div class="settings-header">
-    <button id="btn-back-cuaca" class="btn-back">Kembali</button>
-    <h2>Cuaca &amp; Kondisi</h2>
-  </div>
-  <div class="cuaca-scroll">
-    <p id="cuaca-wave-big">-</p>
-    <p id="cuaca-wind">-</p>
-    <div id="cuaca-desc">Memuat data cuaca...</div>
+<!-- NAVIGASI -->
+<div id="screen-navigasi" class="screen">
+  <div class="nv-top"><span class="nv-title">Navigasi</span></div>
+  <div id="nv-map" class="nv-map"></div>
+  <div class="nv-sheet">
+    <div class="nv-stats"><div><span class="nv-slabel">Jarak ke Lokasi</span><span id="nv-jarak" class="nv-sval">-</span></div><div><span class="nv-slabel">Perkiraan Waktu</span><span id="nv-waktu" class="nv-sval">-</span></div></div>
+    <button id="btn-nv-mulai" class="db-btn1">Mulai Navigasi</button>
   </div>
 </div>
 
-<div id="screen-notifikasi" class="screen">
-  <div class="settings-header">
-    <button id="btn-back-notifikasi" class="btn-back">Kembali</button>
-    <h2>Notifikasi</h2>
-  </div>
-  <div id="notif-empty"><p>Tidak Ada Notifikasi</p></div>
-</div>
-
+<!-- RIWAYAT -->
 <div id="screen-riwayat" class="screen">
-  <div class="riwayat-header"><h2>Riwayat Lokasi</h2></div>
-  <div id="riwayat-empty">
-    <p>Belum Ada Trip Tercatat</p>
-    <button id="btn-riwayat-beranda" class="btn-primary">Buka Beranda</button>
-  </div>
-  <div id="riwayat-content" class="hidden">
-    <div id="riwayat-summary">
-      <div><span id="riwayat-total-trip">-</span><span>Total Trip</span></div>
-      <div><span id="riwayat-total-catch">-</span><span>Total Tangkapan</span></div>
-    </div>
-    <div id="riwayat-list"></div>
+  <div class="rw-page">
+    <span class="rw-title">Riwayat Lokasi</span>
+    <div class="rw-summary"><div class="rw-scard"><span class="rw-slabel">Total Trip</span><span id="rw-total-trip" class="rw-sval">-</span></div><div class="rw-scard rw-primary"><span class="rw-slabel">Total Tangkapan</span><span id="rw-total-catch" class="rw-sval">-</span></div></div>
+    <div class="rw-filters"><button class="rw-filter active" data-rwf="ALL">Semua</button><button class="rw-filter" data-rwf="WEEK">Minggu Ini</button><button class="rw-filter" data-rwf="MONTH">Bulan Ini</button></div>
+    <div id="rw-list" class="rw-list"></div>
+    <nav class="db-navbar"><button class="db-nav" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png"><span>Peta</span></button><button class="db-nav active" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png"><span>Riwayat</span></button><button class="db-nav" data-goto="screen-akun"><img src="/static/icons/ui/akun.png"><span>Akun</span></button></nav>
   </div>
 </div>
 
-<div id="screen-bantuan" class="screen">
-  <div class="settings-header">
-    <button id="btn-back-bantuan" class="btn-back">Kembali</button>
-    <h2>Bantuan &amp; FAQ</h2>
-  </div>
-  <div><p>Apa itu LautPintar?</p></div>
-</div>
-
-<div id="screen-settings" class="screen">
-  <div class="settings-header">
-    <button id="btn-back-settings" class="btn-back">Kembali</button>
-    <h2>Akun Saya</h2>
-  </div>
-  <div class="settings-content">
-    <div class="settings-section">
-      <h3>Profil</h3>
-      <input id="settings-name" type="text" placeholder="Nama Anda">
-      <select id="settings-harbor"></select>
-      <select id="settings-species">
-        <option value="tongkol">Tongkol</option>
-        <option value="cakalang">Cakalang</option>
-        <option value="tuna_sirip_kuning">Tuna Sirip Kuning</option>
-        <option value="kembung">Kembung</option>
-        <option value="teri">Teri</option>
-        <option value="layang">Layang</option>
-        <option value="lemuru">Lemuru</option>
-      </select>
-      <button id="btn-save-settings" class="btn-primary">Simpan</button>
-    </div>
-    <div class="settings-section">
-      <h3>Aplikasi</h3>
-      <button id="btn-menu-cuaca">Cuaca</button>
-      <button id="btn-menu-bantuan">Bantuan</button>
-    </div>
-    <button id="btn-logout" class="btn-danger">Keluar</button>
+<!-- AKUN -->
+<div id="screen-akun" class="screen">
+  <div class="ak-page">
+    <span class="ak-title">Akun Saya</span>
+    <div class="ak-profile"><img src="/static/icons/logo-default.png" class="ak-avatar"><span id="ak-nama" class="ak-nama">-</span></div>
+    <div class="ak-menu"><button id="btn-ak-cuaca">Cuaca &amp; Kondisi <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button><button id="btn-ak-bantuan">Bantuan &amp; FAQ <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button></div>
+    <button id="btn-ak-logout" class="ak-logout">Keluar</button>
+    <span class="ak-ver">Versi 3.5.0</span>
+    <nav class="db-navbar"><button class="db-nav" data-goto="screen-beranda"><img src="/static/icons/ui/beranda.png"><span>Beranda</span></button><button class="db-nav" data-goto="screen-peta"><img src="/static/icons/ui/zona.png"><span>Peta</span></button><button class="db-nav" data-goto="screen-riwayat"><img src="/static/icons/ui/riwayat.png"><span>Riwayat</span></button><button class="db-nav active" data-goto="screen-akun"><img src="/static/icons/ui/akun.png"><span>Akun</span></button></nav>
   </div>
 </div>
-
-<nav id="bottom-nav" class="bottom-nav hidden">
-  <button class="bottom-nav-item active" data-screen="screen-app">Beranda</button>
-  <button class="bottom-nav-item" data-screen="screen-peta">Peta</button>
-  <button class="bottom-nav-item" data-screen="screen-riwayat">Riwayat</button>
-  <button class="bottom-nav-item" data-screen="screen-settings">Akun</button>
-</nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="/static/js/api.js"></script>
-<script src="/static/js/map.js"></script>
-<script src="/static/js/ui.js"></script>
-<script src="/static/js/main.js"></script>
+<script src="/static/js/api.js?v=2"></script>
+<script src="/static/js/ui.js?v=2"></script>
+<script src="/static/js/main.js?v=2"></script>
 </body>
 </html>
